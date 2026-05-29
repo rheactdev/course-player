@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import { BookOpen, ImageIcon } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
@@ -43,13 +44,13 @@ export default function Home() {
     <>
       <SiteHeader activeHref="/" />
       <main className="flex-1 bg-background">
-        <section className="container mx-auto px-4 py-8 sm:px-6 lg:px-8 lg:py-12">
-          <div className="mb-8 flex flex-col gap-3 border-b-3 border-foreground pb-6 sm:flex-row sm:items-end sm:justify-between">
+        <section className="container mx-auto px-4 py-6 sm:px-6 lg:px-8">
+          <div className="mb-6 flex flex-col gap-3 border-b-3 border-foreground pb-5 sm:flex-row sm:items-end sm:justify-between">
             <div>
               <p className="font-mono text-xs font-bold uppercase tracking-wide text-muted-foreground">
                 Local Library
               </p>
-              <h1 className="mt-2 text-5xl leading-none tracking-normal sm:text-6xl">
+              <h1 className="mt-2 font-sans text-4xl font-semibold leading-none tracking-normal">
                 Courses
               </h1>
             </div>
@@ -60,20 +61,22 @@ export default function Home() {
           </div>
 
           {courses.length ? (
-            <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
+            <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
               {courses.map((row) => {
                 const course = serializeCourse(row);
                 const visibleTags = course.tags.slice(0, 3);
                 const fallbackTags = visibleTags.length ? visibleTags : ["Course"];
 
                 return (
-                  <Card
-                    className="min-h-[32rem] bg-card"
-                    interactive
+                  <Link
+                    aria-label={`Open ${course.courseName}`}
+                    className="block"
+                    href={`/courses/${course.slug}`}
                     key={course.id}
                   >
-                    <CardContent className="flex h-full flex-col p-5">
-                      <div className="relative mb-6 flex aspect-[4/3] items-center justify-center border-3 border-foreground bg-muted">
+                    <Card className="min-h-[26rem] bg-card" interactive>
+                      <CardContent className="flex h-full flex-col p-4">
+                      <div className="relative mb-4 flex aspect-[4/3] items-center justify-center border-3 border-foreground bg-muted">
                         {course.coverPath ? (
                           <Image
                             alt=""
@@ -83,14 +86,14 @@ export default function Home() {
                             src={`/media/covers/${course.id}`}
                           />
                         ) : (
-                          <div className="flex h-20 w-20 items-center justify-center border-3 border-foreground bg-accent text-accent-foreground shadow-[4px_4px_0px_hsl(var(--shadow-color))]">
-                            <ImageIcon className="h-10 w-10" aria-hidden="true" />
+                          <div className="flex h-16 w-16 items-center justify-center border-3 border-foreground bg-accent text-accent-foreground shadow-[3px_3px_0px_hsl(var(--shadow-color))]">
+                            <ImageIcon className="h-8 w-8" aria-hidden="true" />
                           </div>
                         )}
                       </div>
 
                       <div className="space-y-2">
-                        <h2 className="font-sans text-3xl font-semibold leading-tight tracking-normal">
+                        <h2 className="font-sans text-2xl font-semibold leading-tight tracking-normal">
                           {truncateTitle(course.courseName)}
                         </h2>
                         <p className="text-base font-medium text-muted-foreground">
@@ -98,22 +101,22 @@ export default function Home() {
                         </p>
                       </div>
 
-                      <dl className="mt-5 grid grid-cols-3 border-3 border-foreground font-mono text-xs font-bold uppercase">
+                      <dl className="mt-4 grid grid-cols-3 border-3 border-foreground font-mono text-[0.7rem] font-bold uppercase">
                         <div className="border-r-3 border-foreground bg-primary p-2 text-primary-foreground">
                           <dt>Sections</dt>
-                          <dd className="text-lg">{row.sections_count}</dd>
+                          <dd className="text-base">{row.sections_count}</dd>
                         </div>
                         <div className="border-r-3 border-foreground bg-secondary p-2 text-secondary-foreground">
                           <dt>Lessons</dt>
-                          <dd className="text-lg">{row.lessons_count}</dd>
+                          <dd className="text-base">{row.lessons_count}</dd>
                         </div>
                         <div className="bg-accent p-2 text-accent-foreground">
                           <dt>Files</dt>
-                          <dd className="text-lg">{row.attachments_count}</dd>
+                          <dd className="text-base">{row.attachments_count}</dd>
                         </div>
                       </dl>
 
-                      <div className="mt-auto flex flex-wrap gap-3 pt-8">
+                      <div className="mt-auto flex flex-wrap gap-2 pt-6">
                         {fallbackTags.map((tag, index) => (
                           <Badge
                             key={`${course.id}-${tag}`}
@@ -123,8 +126,9 @@ export default function Home() {
                           </Badge>
                         ))}
                       </div>
-                    </CardContent>
-                  </Card>
+                      </CardContent>
+                    </Card>
+                  </Link>
                 );
               })}
             </div>

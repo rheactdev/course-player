@@ -3,18 +3,18 @@
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Menu, Moon, Search, Star, Sun, X } from "lucide-react";
+import { Menu, Moon, Sun, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const navItems = [
-  { href: "/courses", label: "Courses" },
+  { href: "/", label: "Courses" },
 ];
 
 type SiteHeaderProps = {
   activeHref?: string;
 };
 
-export function SiteHeader({ activeHref = "/components" }: SiteHeaderProps) {
+export function SiteHeader({ activeHref = "/" }: SiteHeaderProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isDark, setIsDark] = useState(true);
 
