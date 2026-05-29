@@ -70,8 +70,8 @@ export default function CoursesPage() {
                       <CardTitle>{course.creator || "Unknown"}</CardTitle>
                       <CardDescription>{course.courseName}</CardDescription>
                     </CardHeader> */}
-                    <CardContent>
-                      <div className="relative mb-4 flex aspect-[4/3] items-center justify-center border-foreground bg-muted">
+                    <CardContent className="p-0">
+                      <div className="relative flex aspect-[4/3] overflow-hidden bg-muted">
                         {course.coverPath ? (
                           <Image
                             alt=""
@@ -81,8 +81,10 @@ export default function CoursesPage() {
                             src={`/media/covers/${course.id}`}
                           />
                         ) : (
-                          <div className="flex h-16 w-16 items-center justify-center border-3 border-foreground bg-accent text-accent-foreground shadow-[3px_3px_0px_hsl(var(--shadow-color))]">
-                            <ImageIcon className="h-8 w-8" aria-hidden="true" />
+                          <div className="flex h-full w-full items-center justify-center">
+                            <div className="flex h-16 w-16 items-center justify-center border-3 border-foreground bg-accent text-accent-foreground shadow-[3px_3px_0px_hsl(var(--shadow-color))]">
+                              <ImageIcon className="h-8 w-8" aria-hidden="true" />
+                            </div>
                           </div>
                         )}
                       </div>
