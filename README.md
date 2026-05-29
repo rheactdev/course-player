@@ -1,6 +1,10 @@
 # Course Player
 
-A local-first course video player built with Next.js, SQLite, and a bold, compact UI. It scans a folder of downloaded courses, indexes sections, lessons, captions, attachments, and watch progress, then serves everything through stable ID-based routes.
+A local-first course video player built with Next.js, SQLite, and a bold, compact UI courtesy of [Boldkit](https://github.com/ANIBIT14/boldkit). It scans a folder of downloaded courses, indexes sections, lessons, captions, attachments, and watch progress, then serves everything through stable ID-based routes.
+
+## Screenshots
+<img width="2858" height="1496" alt="2026-05-29 18 39 50 localhost 5293ca5b2fa0" src="https://github.com/user-attachments/assets/056d3868-8e56-4c97-9af0-78e7a7e740e6" />
+<img width="2858" height="1496" alt="2026-05-29 18 39 37 localhost e3adcaed4daa" src="https://github.com/user-attachments/assets/d2a5d05b-e38d-4690-9b02-edcdfcd3dba9" />
 
 ## Features
 
@@ -49,18 +53,17 @@ Courses are discovered under an instructor folder:
 courses/
   Instructor Name/
     Course Folder Name/
-      metadata.json
       cover.jpg
       00. Introduction/
         01. Welcome.mp4
         01. Welcome.en.vtt
       01. The Basics/
-        01. Creating a doodle page.mp4
-        02. Finding and exploring tools.mp4
+        01. Tutorial One.mp4
+        02. Tutorial Two.mp4
       Attachments/
-        1-1grimbrush.abr
-        1-1grimbcolorswatch.aco
-        2-1character.psd
+        01-01brush.abr
+        01-01colorswatch.aco
+        02-01character.psd
 ```
 
 Section folders use a numeric prefix:
@@ -68,7 +71,6 @@ Section folders use a numeric prefix:
 ```txt
 00. Introduction
 01. The Basics
-02. Creating Your Character
 ```
 
 Lesson videos use a numeric prefix and one of these extensions:
@@ -99,7 +101,7 @@ Course-level attachments use a `section-lesson` prefix. For example:
 
 ```txt
 Attachments/
-  1-1grimbrush.abr
+  1-1brush.abr
 ```
 
 This attaches to section `01`, lesson `01`.
