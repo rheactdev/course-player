@@ -8,7 +8,13 @@ import type { CourseMetadata, CourseRecord, LessonRecord, ScanSummary, SectionRe
 const sectionPattern = /^(\d+)\.\s*(.+)$/
 const lessonPattern = /^(\d+)\.\s*(.+)\.(mp4|mkv|webm|mov|m4v)$/i
 const leadingNumberPattern = /^(\d+)(?:\.\s*|\s+|-|_)?(.+)?$/
-const coverNames = ['coverimage.jpg', 'cover.jpg', 'poster.jpg', 'thumbnail.jpg', 'folder.jpg']
+const imageExtensions = new Set(['.jpg', '.jpeg', '.png', '.webp', '.gif', '.avif'])
+
+type CourseCandidate = {
+  courseRoot: string
+  folderName: string
+  instructorName: string | null
+}
 
 function listVisibleEntries(directory: string) {
   if (!existsSync(directory)) return []
@@ -69,19 +75,44 @@ function uniqueSlug(baseSlug: string, rootPath: string) {
   return slug
 }
 
-function findCoverPath(courseRoot: string, metadata: CourseMetadata) {
-  const metadataCover = stringField(metadata.coverImage) || stringField(metadata.cover)
-  const candidates = metadataCover ? [metadataCover, ...coverNames] : coverNames
+function hasSectionFolders(directory: string) {
+  return listVisibleEntries(directory).some(
+    (entry) => entry.isDirectory() && sectionPattern.test(entry.name),
+  )
+}
 
-  for (const candidate of candidates) {
-    const absolutePath = path.resolve(courseRoot, candidate)
-    if (!absolutePath.startsWith(courseRoot + path.sep) && absolutePath !== courseRoot) continue
-    if (existsSync(absolutePath) && statSync(absolutePath).isFile()) {
-      return relativeToCoursesDir(absolutePath)
+function discoverCourseCandidates(coursesDir: string): CourseCandidate[] {
+  const candidates: CourseCandidate[] = []
+
+  for (const instructorEntry of listVisibleEntries(coursesDir)) {
+    if (!instructorEntry.isDirectory()) continue
+
+    const instructorRoot = path.join(coursesDir, instructorEntry.name)
+
+    for (const courseEntry of listVisibleEntries(instructorRoot)) {
+      if (!courseEntry.isDirectory()) continue
+
+      const courseRoot = path.join(instructorRoot, courseEntry.name)
+      if (!hasSectionFolders(courseRoot)) continue
+
+      candidates.push({
+        courseRoot,
+        folderName: courseEntry.name,
+        instructorName: instructorEntry.name,
+      })
     }
   }
 
-  return null
+  return candidates
+}
+
+function findCoverPath(courseRoot: string) {
+  const cover = listVisibleEntries(courseRoot).find((entry) => {
+    if (!entry.isFile()) return false
+    return imageExtensions.has(path.extname(entry.name).toLowerCase())
+  })
+
+  return cover ? relativeToCoursesDir(path.join(courseRoot, cover.name)) : null
 }
 
 function getCourseByRoot(rootPath: string) {
@@ -151,16 +182,27 @@ export function scanCourseLibrary(): ScanSummary {
     summary.filesChanged += db.prepare('UPDATE lessons SET unavailable = 1').run().changes
     summary.filesChanged += db.prepare('UPDATE attachments SET unavailable = 1').run().changes
 
-    for (const courseEntry of listVisibleEntries(config.coursesDir)) {
-      if (!courseEntry.isDirectory()) continue
+    const courseCandidates = discoverCourseCandidates(config.coursesDir)
+    const candidateRootPaths = courseCandidates.map((candidate) => relativeToCoursesDir(candidate.courseRoot))
 
-      const courseRoot = path.join(config.coursesDir, courseEntry.name)
+    if (candidateRootPaths.length) {
+      const placeholders = candidateRootPaths.map(() => '?').join(', ')
+      summary.filesChanged += db
+        .prepare(`DELETE FROM courses WHERE root_path NOT IN (${placeholders})`)
+        .run(...candidateRootPaths).changes
+    } else {
+      summary.filesChanged += db.prepare('DELETE FROM courses').run().changes
+    }
+
+    for (const candidate of courseCandidates) {
+      const { courseRoot } = candidate
       const rootPath = relativeToCoursesDir(courseRoot)
       const metadata = readMetadata(courseRoot, errors)
-      const courseName = stringField(metadata.courseName) || stringField(metadata.title) || courseEntry.name
-      const creator = stringField(metadata.creator) || stringField(metadata.instructor)
+      const courseName = stringField(metadata.courseName) || stringField(metadata.title) || candidate.folderName
+      const creator =
+        stringField(metadata.creator) || stringField(metadata.instructor) || candidate.instructorName
       const tagsJson = JSON.stringify(tagsField(metadata.tags))
-      const coverPath = findCoverPath(courseRoot, metadata)
+      const coverPath = findCoverPath(courseRoot)
       const slug = uniqueSlug(slugify(courseName), rootPath)
 
       summary.filesChanged += db.prepare(`

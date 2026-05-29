@@ -1,11 +1,11 @@
 import Image from "next/image";
 import Link from "next/link";
 import { BookOpen, ImageIcon } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { getDb } from "@/lib/server/db";
 import { serializeCourse } from "@/lib/server/serialize";
 import type { CourseRecord } from "@/lib/server/types";
+import { ScanButton } from "./scan-button";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -32,10 +32,6 @@ function getCourses() {
     .all() as CourseOverviewRow[];
 }
 
-function truncateTitle(title: string) {
-  return title.length > 72 ? `${title.slice(0, 69).trim()}...` : title;
-}
-
 export default function CoursesPage() {
   const courses = getCourses();
 
@@ -50,6 +46,7 @@ export default function CoursesPage() {
               Courses
             </h1>
           </div>
+          <ScanButton />
           {/* <div className="flex w-fit items-center gap-2 border-3 border-foreground bg-secondary px-4 py-2 font-mono text-sm font-bold text-secondary-foreground shadow-[4px_4px_0px_hsl(var(--shadow-color))]">
             <BookOpen className="h-4 w-4" aria-hidden="true" />
             {courses.length} {courses.length === 1 ? "course" : "courses"}
@@ -60,8 +57,6 @@ export default function CoursesPage() {
           <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
             {courses.map((row) => {
               const course = serializeCourse(row);
-              const visibleTags = course.tags.slice(0, 3);
-              const fallbackTags = visibleTags.length ? visibleTags : ["Course"];
 
               return (
                 <Link
