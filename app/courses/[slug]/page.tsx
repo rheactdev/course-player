@@ -91,33 +91,17 @@ export default async function CoursePage({ params, searchParams }: CoursePagePro
     : [];
 
   return (
-    <main className="flex-1 bg-background">
+    <main className="flex-1">
+            <div className="grid-pattern pointer-events-none absolute inset-0 z-0 opacity-20"></div>
+
       <section className="container mx-auto px-4 py-6 sm:px-6 lg:px-8">
-          <div className="mb-6 flex flex-col gap-3 border-b-3 border-foreground pb-5 lg:flex-row lg:items-end lg:justify-between">
-            <div className="max-w-4xl">
-              <Link
-                className="font-mono text-xs font-bold uppercase tracking-wide text-muted-foreground hover:text-foreground"
-                href="/courses"
-              >
-                Courses
-              </Link>
-              <h1 className="mt-2 font-sans text-3xl font-semibold leading-tight tracking-normal sm:text-4xl">
-                {course.courseName}
-              </h1>
-              <p className="mt-2 text-base font-medium text-muted-foreground">
+          <div>
+              <h1 className="text-3xl font-black uppercase tracking-tight md:text-4xl font-sans">
                 {course.creator || "Unknown creator"}
+              </h1>
+              <p className="mt-4 text-lg text-muted-foreground">
+                {course.courseName}
               </p>
-            </div>
-            <div className="flex flex-wrap gap-3">
-              {(course.tags.length ? course.tags.slice(0, 4) : ["Course"]).map((tag, index) => (
-                <Badge
-                  key={tag}
-                  variant={index === 0 ? "default" : index === 1 ? "secondary" : "accent"}
-                >
-                  {tag}
-                </Badge>
-              ))}
-            </div>
           </div>
 
           <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_24rem]">
