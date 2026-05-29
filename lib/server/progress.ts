@@ -15,22 +15,8 @@ function toOptionalNumber(value: unknown) {
   return Number.isFinite(numberValue) && numberValue >= 0 ? numberValue : null
 }
 
-function parseIntervals(value: string): WatchedInterval[] {
-  try {
-    const parsed = JSON.parse(value)
-    if (!Array.isArray(parsed)) return []
-
-    return parsed
-      .map((item): WatchedInterval | null => {
-        if (!Array.isArray(item) || item.length !== 2) return null
-        const start = Number(item[0])
-        const end = Number(item[1])
-        return Number.isFinite(start) && Number.isFinite(end) && end > start ? [start, end] : null
-      })
-      .filter((item): item is WatchedInterval => Boolean(item))
-  } catch {
-    return []
-  }
+function clampToDuration(value: number, durationSeconds: number | null) {
+  return durationSeconds && durationSeconds > 0 ? Math.min(value, durationSeconds) : value
 }
 
 export function mergeWatchedIntervals(intervals: WatchedInterval[]) {
@@ -61,26 +47,20 @@ export function saveLessonProgress(lessonId: number, input: ProgressInput) {
     .get(lessonId) as ProgressRecord | undefined
 
   const durationSeconds = toOptionalNumber(input.durationSeconds) ?? existing?.duration_seconds ?? null
-  const positionSeconds = toOptionalNumber(input.positionSeconds) ?? existing?.position_seconds ?? 0
-  const watchedIntervalStart = toOptionalNumber(input.watchedIntervalStart)
-  const watchedIntervalEnd = toOptionalNumber(input.watchedIntervalEnd)
-  const intervals = parseIntervals(existing?.watched_intervals_json || '[]')
-
-  if (
-    watchedIntervalStart !== null &&
-    watchedIntervalEnd !== null &&
-    watchedIntervalEnd > watchedIntervalStart
-  ) {
-    intervals.push([watchedIntervalStart, watchedIntervalEnd])
-  }
-
-  const merged = mergeWatchedIntervals(intervals)
-  const watchedSeconds = merged.reduce((total, [start, end]) => total + end - start, 0)
+  const positionSeconds = clampToDuration(
+    toOptionalNumber(input.positionSeconds) ?? existing?.position_seconds ?? 0,
+    durationSeconds,
+  )
+  const isEndedEvent = input.eventType === 'ended'
   const percentWatched = durationSeconds && durationSeconds > 0
-    ? Math.min(100, (watchedSeconds / durationSeconds) * 100)
+    ? Math.min(100, (positionSeconds / durationSeconds) * 100)
     : 0
-  const completed = percentWatched >= 90 ? 1 : 0
+  const completed = isEndedEvent || percentWatched >= 90 ? 1 : 0
   const completedAt = completed ? existing?.completed_at || new Date().toISOString() : null
+  const watchedSeconds = completed && durationSeconds ? durationSeconds : positionSeconds
+  const watchedIntervals: WatchedInterval[] = durationSeconds && positionSeconds > 0
+    ? [[0, watchedSeconds]]
+    : []
 
   db.prepare(`
     INSERT INTO progress (
@@ -108,7 +88,7 @@ export function saveLessonProgress(lessonId: number, input: ProgressInput) {
     lessonId,
     positionSeconds,
     durationSeconds,
-    JSON.stringify(merged),
+    JSON.stringify(watchedIntervals),
     watchedSeconds,
     percentWatched,
     completed,

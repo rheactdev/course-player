@@ -1,4 +1,4 @@
-import { CirclePlay } from 'lucide-react'
+import { Check, CirclePlay } from 'lucide-react'
 
 import {
   Accordion,
@@ -29,6 +29,7 @@ type CourseSidebarAccordionProps = {
   lessons: CourseLesson[]
   courseSlug: string
   selectedLessonId?: Id
+  completedLessonIds?: Id[]
   className?: string
 }
 
@@ -37,13 +38,10 @@ export function CourseSidebarAccordion({
   lessons,
   courseSlug,
   selectedLessonId,
+  completedLessonIds = [],
   className,
 }: CourseSidebarAccordionProps) {
-  const selectedLesson = lessons.find((lesson) => lesson.id === selectedLessonId)
-
-  // const defaultOpenSections = selectedLesson
-  //   ? [`section-${selectedLesson.section_id}`]
-  //   : sections.map((section) => `section-${section.id}`)
+  const completedLessonIdSet = new Set(completedLessonIds.map(String))
 
   const defaultOpenSections = sections.map(
     (section) => `section-${section.id}`
@@ -61,7 +59,7 @@ export function CourseSidebarAccordion({
         )
 
         return (
-          <AccordionItem key={section.id} value={`section-${section.id}`} className='border-r-0 border-l-0 first:border-t-0'>
+          <AccordionItem key={section.id} value={`section-${section.id}`} className='border-r-0 border-l-0 first:border-t-0 last:border-b-0 shadow-none'>
             <AccordionTrigger className="text-left text-sm text-accent-foreground">
               <span>
                 {section.title}
@@ -71,6 +69,7 @@ export function CourseSidebarAccordion({
             <AccordionContent className="space-y-1 p-2 first:pt-0 px-0 m-0">
               {sectionLessons.map((lesson) => {
                 const isSelected = selectedLessonId === lesson.id
+                const isCompleted = completedLessonIdSet.has(String(lesson.id))
 
                 return (
                   <SidebarLink
@@ -78,11 +77,17 @@ export function CourseSidebarAccordion({
                     href={`/courses/${courseSlug}?lesson=${lesson.id}`}
                     className={cn(
                       'gap-2 p-3 m-0',
-                      isSelected
+                      isCompleted
+                        ? 'bg-success text-success-foreground hover:bg-success'
+                        : isSelected
                         ? 'bg-primary text-primary-foreground hover:bg-primary'
                         : 'bg-background'
                     )}
-                    trailingIcon={<CirclePlay className="h-5 w-5" />}
+                    trailingIcon={
+                      isCompleted
+                        ? <Check className="h-5 w-5" />
+                        : <CirclePlay className="h-5 w-5" />
+                    }
                   >
                     {lesson.title}
                   </SidebarLink>

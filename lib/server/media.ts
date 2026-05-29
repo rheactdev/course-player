@@ -1,8 +1,8 @@
-import { createReadStream } from 'node:fs'
+import { createReadStream, readdirSync } from 'node:fs'
 import path from 'node:path'
 import { Readable } from 'node:stream'
 import mime from 'mime'
-import { getExistingCourseFile } from './paths'
+import { getExistingCourseFile, relativeToCoursesDir, resolveCourseRelativePath } from './paths'
 
 export type StreamResult =
   | { status: 200 | 206; body: ReadableStream<Uint8Array>; headers: Headers }
@@ -100,5 +100,44 @@ export function serveCourseFile(relativePath: string) {
       'Content-Length': String(file.stats.size),
       'Content-Type': contentTypeFor(file.absolutePath),
     }),
+  }
+}
+
+export function findMatchingVttPath(relativePath: string) {
+  const parsedPath = path.parse(relativePath)
+  const exactVttPath = `${path.join(parsedPath.dir, parsedPath.name)}.vtt`
+
+  if (getExistingCourseFile(exactVttPath)) return exactVttPath
+
+  const directory = resolveCourseRelativePath(parsedPath.dir)
+  if (!directory) return null
+
+  const baseName = parsedPath.name.toLowerCase()
+  const matches = safeReadDirectory(directory)
+    .filter((entry) => {
+      const entryName = entry.name.toLowerCase()
+      return entry.isFile() && entryName.startsWith(`${baseName}.`) && entryName.endsWith('.vtt')
+    })
+    .sort((a, b) => {
+      const aName = a.name.toLowerCase()
+      const bName = b.name.toLowerCase()
+      if (aName.endsWith('.en.vtt')) return -1
+      if (bName.endsWith('.en.vtt')) return 1
+      return aName.localeCompare(bName, undefined, { numeric: true })
+    })
+
+  return matches[0] ? relativeToCoursesDir(path.join(directory, matches[0].name)) : null
+}
+
+export function serveMatchingVttFile(relativePath: string) {
+  const vttPath = findMatchingVttPath(relativePath)
+  return vttPath ? serveCourseFile(vttPath) : null
+}
+
+function safeReadDirectory(directory: string) {
+  try {
+    return readdirSync(directory, { withFileTypes: true })
+  } catch {
+    return []
   }
 }

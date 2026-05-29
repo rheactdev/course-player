@@ -7,6 +7,7 @@ import type { CourseMetadata, CourseRecord, LessonRecord, ScanSummary, SectionRe
 
 const sectionPattern = /^(\d+)\.\s*(.+)$/
 const lessonPattern = /^(\d+)\.\s*(.+)\.(mp4|mkv|webm|mov|m4v)$/i
+const courseAttachmentPattern = /^(\d+)-(\d+)/
 const leadingNumberPattern = /^(\d+)(?:\.\s*|\s+|-|_)?(.+)?$/
 const imageExtensions = new Set(['.jpg', '.jpeg', '.png', '.webp', '.gif', '.avif'])
 
@@ -14,6 +15,12 @@ type CourseCandidate = {
   courseRoot: string
   folderName: string
   instructorName: string | null
+}
+
+type AttachmentTarget = {
+  section: SectionRecord
+  lesson: LessonRecord | undefined
+  attachmentIndex: number | null
 }
 
 function listVisibleEntries(directory: string) {
@@ -131,6 +138,12 @@ function getLessonBySectionIndex(sectionId: number, lessonIndex: number) {
     .get(sectionId, lessonIndex) as LessonRecord | undefined
 }
 
+function getSectionByIndex(courseId: number, sectionIndex: number) {
+  return getDb()
+    .prepare('SELECT * FROM sections WHERE course_id = ? AND section_index = ?')
+    .get(courseId, sectionIndex) as SectionRecord | undefined
+}
+
 function collectAttachmentFiles(attachmentsRoot: string) {
   const files: string[] = []
 
@@ -158,6 +171,75 @@ function attachmentIndexFor(attachmentsRoot: string, absolutePath: string) {
 
   const fileMatch = leadingNumberPattern.exec(path.basename(absolutePath))
   return fileMatch ? Number(fileMatch[1]) : null
+}
+
+function courseAttachmentTargetFor(courseId: number, attachmentsRoot: string, absolutePath: string) {
+  const relativePath = normalizeRelativePath(path.relative(attachmentsRoot, absolutePath))
+  const segments = relativePath.split('/')
+  const indexSource = segments.length > 1 ? segments[0] : path.basename(absolutePath)
+  const match = courseAttachmentPattern.exec(indexSource)
+  if (!match) return null
+
+  const sectionIndex = Number(match[1])
+  const lessonIndex = Number(match[2])
+  const section = getSectionByIndex(courseId, sectionIndex)
+  if (!section) return null
+
+  return {
+    section,
+    lesson: getLessonBySectionIndex(section.id, lessonIndex),
+    attachmentIndex: lessonIndex,
+  } satisfies AttachmentTarget
+}
+
+function insertAttachment(
+  courseId: number,
+  target: AttachmentTarget,
+  attachmentAbsolutePath: string,
+) {
+  const db = getDb()
+  const attachmentStats = statSync(attachmentAbsolutePath)
+  const attachmentRelativePath = relativeToCoursesDir(attachmentAbsolutePath)
+  const attachmentName = path.basename(attachmentAbsolutePath)
+  const extension = path.extname(attachmentName).replace(/^\./, '').toLowerCase() || null
+
+  return db.prepare(`
+    INSERT INTO attachments (
+      course_id,
+      section_id,
+      lesson_id,
+      attachment_index,
+      name,
+      relative_path,
+      extension,
+      size_bytes,
+      mtime_ms,
+      unavailable,
+      updated_at
+    )
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 0, CURRENT_TIMESTAMP)
+    ON CONFLICT(relative_path) DO UPDATE SET
+      course_id = excluded.course_id,
+      section_id = excluded.section_id,
+      lesson_id = excluded.lesson_id,
+      attachment_index = excluded.attachment_index,
+      name = excluded.name,
+      extension = excluded.extension,
+      size_bytes = excluded.size_bytes,
+      mtime_ms = excluded.mtime_ms,
+      unavailable = 0,
+      updated_at = CURRENT_TIMESTAMP
+  `).run(
+    courseId,
+    target.section.id,
+    target.lesson?.id ?? null,
+    target.attachmentIndex,
+    attachmentName,
+    attachmentRelativePath,
+    extension,
+    attachmentStats.size,
+    Math.round(attachmentStats.mtimeMs),
+  ).changes
 }
 
 export function scanCourseLibrary(): ScanSummary {
@@ -295,55 +377,32 @@ export function scanCourseLibrary(): ScanSummary {
 
         const attachmentsRoot = path.join(sectionRoot, 'Attachments')
         for (const attachmentAbsolutePath of collectAttachmentFiles(attachmentsRoot)) {
-          const attachmentStats = statSync(attachmentAbsolutePath)
           const attachmentIndex = attachmentIndexFor(attachmentsRoot, attachmentAbsolutePath)
           const lesson = attachmentIndex === null
             ? undefined
             : getLessonBySectionIndex(section.id, attachmentIndex)
-          const attachmentRelativePath = relativeToCoursesDir(attachmentAbsolutePath)
-          const attachmentName = path.basename(attachmentAbsolutePath)
-          const extension = path.extname(attachmentName).replace(/^\./, '').toLowerCase() || null
 
-          summary.filesChanged += db.prepare(`
-            INSERT INTO attachments (
-              course_id,
-              section_id,
-              lesson_id,
-              attachment_index,
-              name,
-              relative_path,
-              extension,
-              size_bytes,
-              mtime_ms,
-              unavailable,
-              updated_at
-            )
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 0, CURRENT_TIMESTAMP)
-            ON CONFLICT(relative_path) DO UPDATE SET
-              course_id = excluded.course_id,
-              section_id = excluded.section_id,
-              lesson_id = excluded.lesson_id,
-              attachment_index = excluded.attachment_index,
-              name = excluded.name,
-              extension = excluded.extension,
-              size_bytes = excluded.size_bytes,
-              mtime_ms = excluded.mtime_ms,
-              unavailable = 0,
-              updated_at = CURRENT_TIMESTAMP
-          `).run(
-            course.id,
-            section.id,
-            lesson?.id ?? null,
+          summary.filesChanged += insertAttachment(course.id, {
+            section,
+            lesson,
             attachmentIndex,
-            attachmentName,
-            attachmentRelativePath,
-            extension,
-            attachmentStats.size,
-            Math.round(attachmentStats.mtimeMs),
-          ).changes
+          }, attachmentAbsolutePath)
 
           summary.attachmentsFound += 1
         }
+      }
+
+      const courseAttachmentsRoot = path.join(courseRoot, 'Attachments')
+      for (const attachmentAbsolutePath of collectAttachmentFiles(courseAttachmentsRoot)) {
+        const target = courseAttachmentTargetFor(course.id, courseAttachmentsRoot, attachmentAbsolutePath)
+
+        if (!target) {
+          errors.push(`Could not match attachment to lesson: ${attachmentAbsolutePath}`)
+          continue
+        }
+
+        summary.filesChanged += insertAttachment(course.id, target, attachmentAbsolutePath)
+        summary.attachmentsFound += 1
       }
     }
 

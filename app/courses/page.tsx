@@ -54,7 +54,7 @@ export default function CoursesPage() {
         </div>
 
         {courses.length ? (
-          <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+          <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
             {courses.map((row) => {
               const course = serializeCourse(row);
 
@@ -65,7 +65,7 @@ export default function CoursesPage() {
                   href={`/courses/${course.slug}`}
                   key={course.id}
                 >
-                  <Card className="min-h-[26rem] bg-card" interactive>
+                  <Card className="min-h-[24rem] bg-card" interactive>
                     {/* <CardHeader>
                       <CardTitle>{course.creator || "Unknown"}</CardTitle>
                       <CardDescription>{course.courseName}</CardDescription>

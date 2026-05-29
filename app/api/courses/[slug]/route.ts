@@ -21,9 +21,10 @@ export async function GET(_request: Request, { params }: { params: Promise<{ slu
   `).all(course.id) as SectionRecord[]
 
   const lessons = db.prepare(`
-    SELECT * FROM lessons
-    WHERE course_id = ?
-    ORDER BY sort_order ASC, title COLLATE NOCASE ASC
+    SELECT lessons.* FROM lessons
+    INNER JOIN sections ON sections.id = lessons.section_id
+    WHERE lessons.course_id = ?
+    ORDER BY sections.sort_order ASC, lessons.sort_order ASC, lessons.title COLLATE NOCASE ASC
   `).all(course.id) as LessonRecord[]
 
   const attachments = db.prepare(`

@@ -1,19 +1,13 @@
 import Link from "next/link";
 import Image from "next/image";
 import { notFound } from "next/navigation";
-import { FileDown, ImageIcon, Paperclip, Play, PlayCircle } from "lucide-react";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
+import { FileDown, ImageIcon } from "lucide-react";
 import { getDb } from "@/lib/server/db";
-import { serializeCourse } from "@/lib/server/serialize";
-import type { AttachmentRecord, CourseRecord, LessonRecord, SectionRecord } from "@/lib/server/types";
+import { findMatchingVttPath } from "@/lib/server/media";
+import { serializeCourse, serializeProgress } from "@/lib/server/serialize";
+import type { AttachmentRecord, CourseRecord, LessonRecord, ProgressRecord, SectionRecord } from "@/lib/server/types";
 import CourseSidebar from "@/components/CourseSidebar";
+import { LessonVideoPlayer } from "@/components/LessonVideoPlayer";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -45,9 +39,10 @@ function getLessons(courseId: number) {
   return getDb()
     .prepare(
       `
-        SELECT * FROM lessons
-        WHERE course_id = ?
-        ORDER BY sort_order ASC, title COLLATE NOCASE ASC
+        SELECT lessons.* FROM lessons
+        INNER JOIN sections ON sections.id = lessons.section_id
+        WHERE lessons.course_id = ?
+        ORDER BY sections.sort_order ASC, lessons.sort_order ASC, lessons.title COLLATE NOCASE ASC
       `,
     )
     .all(courseId) as LessonRecord[];
@@ -65,8 +60,25 @@ function getAttachments(courseId: number) {
     .all(courseId) as AttachmentRecord[];
 }
 
-function lessonNumber(section: SectionRecord, lesson: LessonRecord) {
-  return `${section.section_index}-${lesson.lesson_index}`;
+function getProgress(lessonId: number) {
+  return getDb()
+    .prepare("SELECT * FROM progress WHERE lesson_id = ?")
+    .get(lessonId) as ProgressRecord | undefined;
+}
+
+function getCompletedLessonIds(courseId: number) {
+  const rows = getDb()
+    .prepare(
+      `
+        SELECT progress.lesson_id AS lessonId
+        FROM progress
+        INNER JOIN lessons ON lessons.id = progress.lesson_id
+        WHERE lessons.course_id = ? AND progress.completed = 1
+      `,
+    )
+    .all(courseId) as { lessonId: number }[];
+
+  return rows.map((row) => row.lessonId);
 }
 
 export default async function CoursePage({ params, searchParams }: CoursePageProps) {
@@ -90,18 +102,24 @@ export default async function CoursePage({ params, searchParams }: CoursePagePro
   const selectedAttachments = selectedLesson
     ? attachments.filter((attachment) => attachment.lesson_id === selectedLesson.id)
     : [];
+  const hasSelectedLessonCaptions = selectedLesson
+    ? Boolean(findMatchingVttPath(selectedLesson.relative_path))
+    : false;
+  const selectedProgress = selectedLesson ? serializeProgress(getProgress(selectedLesson.id)) : null;
+  const completedLessonIds = getCompletedLessonIds(course.id);
 
   return (
     <main className="flex-1">
       <div className="grid-pattern pointer-events-none absolute inset-0 z-0 opacity-20"></div>
-      <CourseSidebar course={course} courseName={course.courseName} sections={sections} lessons={lessons} selectedLesson={selectedLesson}><section className="container mx-auto">
+      <CourseSidebar course={course} courseName={course.courseName} sections={sections} lessons={lessons} selectedLesson={selectedLesson} completedLessonIds={completedLessonIds}><section className="container mx-auto">
         <section className="min-w-0">
           <div className="relative flex aspect-video items-center justify-center overflow-hidden">
             {selectedLesson && !selectedLesson.unavailable ? (
-              <video
-                className="h-full w-full bg-black"
-                controls
-                preload="metadata"
+              <LessonVideoPlayer
+                captionsSrc={hasSelectedLessonCaptions ? `/media/lessons/${selectedLesson.id}/captions` : undefined}
+                initialProgress={selectedProgress}
+                key={selectedLesson.id}
+                lessonId={selectedLesson.id}
                 src={`/media/lessons/${selectedLesson.id}`}
               />
             ) : course.coverPath ? (
