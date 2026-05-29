@@ -1,5 +1,45 @@
 import type { AttachmentRecord, CourseRecord, ProgressRecord } from './types'
 
+export type SerializedCourse = {
+  id: number
+  slug: string
+  courseName: string
+  creator: string | null
+  tags: string[]
+  rootPath: string
+  coverPath: string | null
+  createdAt: string
+  updatedAt: string
+  lastScannedAt: string | null
+}
+
+export type SerializedAttachment = {
+  id: number
+  courseId: number
+  sectionId: number
+  lessonId: number | null
+  attachmentIndex: number | null
+  name: string
+  relativePath: string
+  extension: string | null
+  sizeBytes: number
+  mtimeMs: number
+  unavailable: boolean
+}
+
+export type SerializedProgress = {
+  id: number
+  lessonId: number
+  positionSeconds: number
+  durationSeconds: number | null
+  watchedIntervals: unknown
+  watchedSeconds: number
+  percentWatched: number
+  completed: boolean
+  completedAt: string | null
+  updatedAt: string
+}
+
 export function parseTags(tagsJson: string) {
   try {
     const tags = JSON.parse(tagsJson)
@@ -9,7 +49,7 @@ export function parseTags(tagsJson: string) {
   }
 }
 
-export function serializeCourse(course: CourseRecord) {
+export function serializeCourse(course: CourseRecord): SerializedCourse {
   return {
     id: course.id,
     slug: course.slug,
@@ -24,7 +64,7 @@ export function serializeCourse(course: CourseRecord) {
   }
 }
 
-export function serializeAttachment(attachment: AttachmentRecord) {
+export function serializeAttachment(attachment: AttachmentRecord): SerializedAttachment {
   return {
     id: attachment.id,
     courseId: attachment.course_id,
@@ -40,7 +80,7 @@ export function serializeAttachment(attachment: AttachmentRecord) {
   }
 }
 
-export function serializeProgress(progress: ProgressRecord | null | undefined) {
+export function serializeProgress(progress: ProgressRecord | null | undefined): SerializedProgress | null {
   if (!progress) return null
 
   return {
