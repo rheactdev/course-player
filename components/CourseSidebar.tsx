@@ -8,6 +8,8 @@ import { Home, Settings } from 'lucide-react'
 
 import type { AttachmentRecord, CourseRecord, LessonRecord, SectionRecord } from "@/lib/server/types";
 import { SerializedAttachment, SerializedCourse, SerializedProgress } from '@/lib/server/serialize';
+// import { useRouter } from 'next/navigation';
+import { SidebarLink } from './SidebarLink';
 
 
 interface CourseSidebarProps {
@@ -15,11 +17,13 @@ interface CourseSidebarProps {
     course?: SerializedCourse;
     sections: SectionRecord[];
     lessons: LessonRecord[];
+    selectedLesson?: LessonRecord;
+    children?: React.ReactNode;
 }
 
-export default function CourseSidebar({ courseName, sections, lessons }: CourseSidebarProps) {
+export default function CourseSidebar({ courseName, sections, lessons, selectedLesson, course, children }: CourseSidebarProps) {
 
-
+    // const router = useRouter();
     return (
         <SidebarProvider>
             <Sidebar>
@@ -30,15 +34,16 @@ export default function CourseSidebar({ courseName, sections, lessons }: CourseS
                         return <SidebarGroup key={section.id}>
                             <SidebarGroupLabel>{section.section_index} {section.title}</SidebarGroupLabel>
                             {sectionLessons.map((lesson) => {
-                                return <SidebarItem><span className='text-wrap text-left'>{lesson.title}</span></SidebarItem>
+                                const isSelected = selectedLesson?.id === lesson.id;
+                                return <SidebarLink key={lesson.id} href={`/courses/${course?.slug}?lesson=${lesson.id}`} className={isSelected ? "bg-primary text-primary-foreground hover:bg-primary" : "bg-background"}><span className='block w-full whitespace-normal break-words text-left'>{lesson.title}
+                                </span></SidebarLink>
                             })}
                         </SidebarGroup>
                     })}
                 </SidebarContent>
             </Sidebar>
             <SidebarInset>
-                <SidebarToggle />
-                <main>Content</main>
+                {children}
             </SidebarInset>
         </SidebarProvider>
     )

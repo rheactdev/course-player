@@ -94,9 +94,7 @@ export default async function CoursePage({ params, searchParams }: CoursePagePro
   return (
     <main className="flex-1">
       <div className="grid-pattern pointer-events-none absolute inset-0 z-0 opacity-20"></div>
-      <CourseSidebar courseName={course.courseName} sections={sections} lessons={lessons}/>
-
-      <section className="container mx-auto px-4 py-6 sm:px-6 lg:px-8">
+      <CourseSidebar course={course} courseName={course.courseName} sections={sections} lessons={lessons} selectedLesson={selectedLesson}><section className="container mx-auto px-4 py-6 sm:px-6 lg:px-8">
         <div>
           <h1 className="text-3xl font-black uppercase tracking-tight md:text-4xl font-sans">
             {course.creator || "Unknown creator"}
@@ -232,7 +230,8 @@ export default async function CoursePage({ params, searchParams }: CoursePagePro
             </Accordion>
           </aside>
         </div>
-      </section>
+      </section></CourseSidebar>
+
     </main>
   );
 }
