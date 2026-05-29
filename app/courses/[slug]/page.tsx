@@ -10,7 +10,6 @@ import {
 } from "@/components/ui/accordion";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { SiteHeader } from "@/components/site-header";
 import { getDb } from "@/lib/server/db";
 import { serializeCourse } from "@/lib/server/serialize";
 import type { AttachmentRecord, CourseRecord, LessonRecord, SectionRecord } from "@/lib/server/types";
@@ -92,15 +91,13 @@ export default async function CoursePage({ params, searchParams }: CoursePagePro
     : [];
 
   return (
-    <>
-      <SiteHeader activeHref="/" />
-      <main className="flex-1 bg-background">
-        <section className="container mx-auto px-4 py-6 sm:px-6 lg:px-8">
+    <main className="flex-1 bg-background">
+      <section className="container mx-auto px-4 py-6 sm:px-6 lg:px-8">
           <div className="mb-6 flex flex-col gap-3 border-b-3 border-foreground pb-5 lg:flex-row lg:items-end lg:justify-between">
             <div className="max-w-4xl">
               <Link
                 className="font-mono text-xs font-bold uppercase tracking-wide text-muted-foreground hover:text-foreground"
-                href="/"
+                href="/courses"
               >
                 Courses
               </Link>
@@ -249,8 +246,7 @@ export default async function CoursePage({ params, searchParams }: CoursePagePro
               </Accordion>
             </aside>
           </div>
-        </section>
-      </main>
-    </>
+      </section>
+    </main>
   );
 }

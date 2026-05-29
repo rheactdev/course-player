@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Bebas_Neue, DM_Mono, Outfit } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
+import { SiteHeader } from "@/components/site-header";
 
 const bebasNeue = Bebas_Neue({
   subsets: ["latin"],
@@ -40,7 +41,10 @@ export default function RootLayout({
         dmMono.variable,
       )}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        <SiteHeader />
+        {children}
+      </body>
     </html>
   );
 }

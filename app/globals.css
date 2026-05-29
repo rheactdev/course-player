@@ -19,6 +19,10 @@
   --color-muted-foreground: hsl(var(--muted-foreground));
   --color-accent: hsl(var(--accent));
   --color-accent-foreground: hsl(var(--accent-foreground));
+  --color-success: #95E4B7;
+  --color-success-foreground: hsl(var(--success-foreground));
+  --color-info: #84B4F9;
+  --color-info-foreground: hsl(var(--info-foreground));
   --color-destructive: hsl(var(--destructive));
   --color-destructive-foreground: hsl(var(--destructive-foreground));
   --color-warning: hsl(var(--warning));
@@ -66,6 +70,12 @@
   /* Accent */
   --accent: 260 53% 80%;
   --accent-foreground: 240 10% 10%;
+
+  /* Success & Info */
+  --success: 146 59% 74%;
+  --success-foreground: 240 10% 10%;
+  --info: 215 91% 75%;
+  --info-foreground: 240 10% 10%;
 
   /* Muted */
   --muted: 60 5% 90%;
@@ -133,6 +143,12 @@
   --accent: 260 53% 80%;
   --accent-foreground: 240 10% 10%;
 
+  /* Success & Info */
+  --success: 146 59% 74%;
+  --success-foreground: 240 10% 10%;
+  --info: 215 91% 75%;
+  --info-foreground: 240 10% 10%;
+
   /* Muted */
   --muted: 240 10% 20%;
   --muted-foreground: 60 5% 65%;
@@ -190,9 +206,12 @@
     @apply min-h-full bg-background text-foreground antialiased;
   }
 
+  h3 {
+    @apply font-sans
+  }
+
   h1,
   h2,
-  h3,
   h4,
   h5,
   h6 {
@@ -202,4 +221,9 @@
 
 ::selection {
   @apply bg-accent text-accent-foreground;
+}
+
+.grid-pattern {
+  background-image: linear-gradient(hsl(var(--border) / .3) 1px, transparent 1px), linear-gradient(90deg, hsl(var(--border) / .3) 1px, transparent 1px);
+  background-size: 40px 40px;
 }

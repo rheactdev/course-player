@@ -3,18 +3,19 @@
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { Menu, Moon, Sun, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-const navItems = [
-  { href: "/", label: "Courses" },
-];
+interface NavItem {
+  href: string;
+  label: string;
+}
 
-type SiteHeaderProps = {
-  activeHref?: string;
-};
+const navItems: NavItem[] = [];
 
-export function SiteHeader({ activeHref = "/" }: SiteHeaderProps) {
+export function SiteHeader() {
+  const pathname = usePathname();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isDark, setIsDark] = useState(true);
 
@@ -26,18 +27,25 @@ export function SiteHeader({ activeHref = "/" }: SiteHeaderProps) {
   }
 
   return (
-    <header className="sticky top-0 z-50 border-b-3 border-foreground bg-background">
-      <div className="container mx-auto flex h-14 items-center justify-between px-3 lg:px-6 align-middle">
+    <header className="sticky top-0 z-50 w-full border-b-3 border-foreground bg-background">
+      <div className="flex h-1 w-full">
+        <div className="flex-1 bg-primary"></div>
+        <div className="flex-1 bg-secondary"></div>
+        <div className="flex-1 bg-accent"></div>
+        <div className="flex-1 bg-success"></div>
+        <div className="flex-1 bg-info"></div>
+      </div>
+      <div className="flex h-14 w-full items-center justify-between px-4 align-middle sm:px-6 lg:px-8">
         <Link
           aria-label="BoldKit home"
-          href="/"
+          href="/courses"
           className="group flex shrink-0 items-center gap-2 align-middle"
         >
           <Image
             alt="BoldKit logo"
             className="h-7 w-7 transition-transform duration-200 group-hover:rotate-[-6deg]"
             height={28}
-            src="icons8-origami.svg"
+            src="/icons8-origami.svg"
             width={28}
           />
           <span className="font-heading text-2xl leading-none tracking-wider">
@@ -47,7 +55,7 @@ export function SiteHeader({ activeHref = "/" }: SiteHeaderProps) {
 
         <nav className="hidden items-center lg:flex" aria-label="Main navigation">
           {navItems.map((item) => {
-            const isActive = item.href === activeHref;
+            const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
 
             return (
               <Link
@@ -108,9 +116,9 @@ export function SiteHeader({ activeHref = "/" }: SiteHeaderProps) {
           className="border-t-3 border-foreground bg-background lg:hidden"
           id="mobile-menu"
         >
-          <div className="container mx-auto grid px-3 py-2">
+          <div className="grid px-4 py-2 sm:px-6 lg:px-8">
             {navItems.map((item) => {
-              const isActive = item.href === activeHref;
+              const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
 
               return (
                 <Link
