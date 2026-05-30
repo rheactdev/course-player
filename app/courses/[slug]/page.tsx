@@ -164,7 +164,7 @@ export default async function CoursePage({ params, searchParams }: CoursePagePro
                 {selectedLesson?.title || 'No lesson selected'}
               </h2>
 
-              {selectedAttachments.length ? (
+              {/* {selectedAttachments.length ? (
                 <div className="mt-4 flex flex-wrap gap-2">
                   {selectedAttachments.map((attachment) => (
                     <Link
@@ -177,7 +177,7 @@ export default async function CoursePage({ params, searchParams }: CoursePagePro
                     </Link>
                   ))}
                 </div>
-              ) : null}
+              ) : null} */}
             </div>
           </section>
         </section>
