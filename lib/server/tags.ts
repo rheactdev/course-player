@@ -50,9 +50,10 @@ export function removeGlobalTag(name: string) {
   if (!normalized) return
 
   const db = getDb()
-  // Transaction: remove from global tags, and also remove from all courses.
-  const tx = db.transaction(() => {
-    db.prepare('DELETE FROM tags WHERE name = ? COLLATE NOCASE').run(normalized)
+  
+  db.prepare('BEGIN IMMEDIATE').run()
+  try {
+    db.prepare('DELETE FROM tags WHERE name = ?').run(normalized)
 
     // Remove from courses
     const courses = db.prepare('SELECT id, tags_json FROM courses').all() as { id: number, tags_json: string }[]
@@ -65,8 +66,11 @@ export function removeGlobalTag(name: string) {
         updateStmt.run(JSON.stringify(newTags), course.id)
       }
     }
-  })
-  
-  tx()
+    
+    db.prepare('COMMIT').run()
+  } catch (err) {
+    db.prepare('ROLLBACK').run()
+    throw err
+  }
 }
 
