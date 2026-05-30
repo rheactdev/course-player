@@ -60,7 +60,7 @@ export default function TagsPage() {
                   <TableHeader>
                     <TableRow>
                       <TableHead>Course Name</TableHead>
-                      <TableHead>Tags</TableHead>
+                      <TableHead className="w-[400px]">Tags</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
