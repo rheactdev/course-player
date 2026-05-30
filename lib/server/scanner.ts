@@ -4,7 +4,13 @@ import { getServerConfig } from './config'
 import { getDb } from './db'
 import { isIgnoredName, normalizeRelativePath, relativeToCoursesDir } from './paths'
 import { parseTagsJson, uniqueTags } from './tags'
-import type { CourseMetadata, CourseRecord, LessonRecord, ScanSummary, SectionRecord } from './types'
+import type {
+  CourseMetadata,
+  CourseRecord,
+  LessonRecord,
+  ScanSummary,
+  SectionRecord,
+} from './types'
 
 const sectionPattern = /^(\d+)\.\s*(.+)$/
 const lessonPattern = /^(\d+)\.\s*(.+)\.(mp4|mkv|webm|mov|m4v)$/i
@@ -182,7 +188,11 @@ function attachmentIndexFor(attachmentsRoot: string, absolutePath: string) {
   return fileMatch ? Number(fileMatch[1]) : null
 }
 
-function courseAttachmentTargetFor(courseId: number, attachmentsRoot: string, absolutePath: string) {
+function courseAttachmentTargetFor(
+  courseId: number,
+  attachmentsRoot: string,
+  absolutePath: string,
+) {
   const relativePath = normalizeRelativePath(path.relative(attachmentsRoot, absolutePath))
   const segments = relativePath.split('/')
   const indexSource = segments.length > 1 ? segments[0] : path.basename(absolutePath)
@@ -212,7 +222,9 @@ function insertAttachment(
   const attachmentName = path.basename(attachmentAbsolutePath)
   const extension = path.extname(attachmentName).replace(/^\./, '').toLowerCase() || null
 
-  return db.prepare(`
+  return db
+    .prepare(
+      `
     INSERT INTO attachments (
       course_id,
       section_id,
@@ -238,17 +250,19 @@ function insertAttachment(
       mtime_ms = excluded.mtime_ms,
       unavailable = 0,
       updated_at = CURRENT_TIMESTAMP
-  `).run(
-    courseId,
-    target.section.id,
-    target.lesson?.id ?? null,
-    target.attachmentIndex,
-    attachmentName,
-    attachmentRelativePath,
-    extension,
-    attachmentStats.size,
-    Math.round(attachmentStats.mtimeMs),
-  ).changes
+  `,
+    )
+    .run(
+      courseId,
+      target.section.id,
+      target.lesson?.id ?? null,
+      target.attachmentIndex,
+      attachmentName,
+      attachmentRelativePath,
+      extension,
+      attachmentStats.size,
+      Math.round(attachmentStats.mtimeMs),
+    ).changes
 }
 
 export function scanCourseLibrary(): ScanSummary {
@@ -274,7 +288,9 @@ export function scanCourseLibrary(): ScanSummary {
     summary.filesChanged += db.prepare('UPDATE attachments SET unavailable = 1').run().changes
 
     const courseCandidates = discoverCourseCandidates(config.coursesDir)
-    const candidateRootPaths = courseCandidates.map((candidate) => relativeToCoursesDir(candidate.courseRoot))
+    const candidateRootPaths = courseCandidates.map((candidate) =>
+      relativeToCoursesDir(candidate.courseRoot),
+    )
 
     if (candidateRootPaths.length) {
       const placeholders = candidateRootPaths.map(() => '?').join(', ')
@@ -289,14 +305,19 @@ export function scanCourseLibrary(): ScanSummary {
       const { courseRoot } = candidate
       const rootPath = relativeToCoursesDir(courseRoot)
       const metadata = readMetadata(courseRoot, errors)
-      const courseName = stringField(metadata.courseName) || stringField(metadata.title) || candidate.folderName
+      const courseName =
+        stringField(metadata.courseName) || stringField(metadata.title) || candidate.folderName
       const creator =
-        stringField(metadata.creator) || stringField(metadata.instructor) || candidate.instructorName
+        stringField(metadata.creator) ||
+        stringField(metadata.instructor) ||
+        candidate.instructorName
       const tagsJson = JSON.stringify(mergedCourseTags(rootPath, tagsField(metadata.tags)))
       const coverPath = findCoverPath(courseRoot)
       const slug = uniqueSlug(slugify(courseName), rootPath)
 
-      summary.filesChanged += db.prepare(`
+      summary.filesChanged += db
+        .prepare(
+          `
         INSERT INTO courses (slug, course_name, creator, tags_json, root_path, cover_path, updated_at, last_scanned_at)
         VALUES (?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
         ON CONFLICT(root_path) DO UPDATE SET
@@ -307,7 +328,9 @@ export function scanCourseLibrary(): ScanSummary {
           cover_path = excluded.cover_path,
           updated_at = CURRENT_TIMESTAMP,
           last_scanned_at = CURRENT_TIMESTAMP
-      `).run(slug, courseName, creator, tagsJson, rootPath, coverPath).changes
+      `,
+        )
+        .run(slug, courseName, creator, tagsJson, rootPath, coverPath).changes
 
       const course = getCourseByRoot(rootPath)
       summary.coursesFound += 1
@@ -323,7 +346,9 @@ export function scanCourseLibrary(): ScanSummary {
         const sectionTitle = sectionMatch[2].trim()
         const sectionRelativePath = relativeToCoursesDir(sectionRoot)
 
-        summary.filesChanged += db.prepare(`
+        summary.filesChanged += db
+          .prepare(
+            `
           INSERT INTO sections (course_id, section_index, title, relative_path, sort_order, updated_at)
           VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
           ON CONFLICT(course_id, section_index) DO UPDATE SET
@@ -331,7 +356,9 @@ export function scanCourseLibrary(): ScanSummary {
             relative_path = excluded.relative_path,
             sort_order = excluded.sort_order,
             updated_at = CURRENT_TIMESTAMP
-        `).run(course.id, sectionIndex, sectionTitle, sectionRelativePath, sectionIndex).changes
+        `,
+          )
+          .run(course.id, sectionIndex, sectionTitle, sectionRelativePath, sectionIndex).changes
 
         const section = getSection(course.id, sectionIndex)
         summary.sectionsFound += 1
@@ -348,7 +375,9 @@ export function scanCourseLibrary(): ScanSummary {
           const lessonTitle = lessonMatch[2].trim()
           const lessonRelativePath = relativeToCoursesDir(lessonAbsolutePath)
 
-          summary.filesChanged += db.prepare(`
+          summary.filesChanged += db
+            .prepare(
+              `
             INSERT INTO lessons (
               course_id,
               section_id,
@@ -370,16 +399,18 @@ export function scanCourseLibrary(): ScanSummary {
               sort_order = excluded.sort_order,
               unavailable = 0,
               updated_at = CURRENT_TIMESTAMP
-          `).run(
-            course.id,
-            section.id,
-            lessonIndex,
-            lessonTitle,
-            lessonRelativePath,
-            lessonStats.size,
-            Math.round(lessonStats.mtimeMs),
-            lessonIndex,
-          ).changes
+          `,
+            )
+            .run(
+              course.id,
+              section.id,
+              lessonIndex,
+              lessonTitle,
+              lessonRelativePath,
+              lessonStats.size,
+              Math.round(lessonStats.mtimeMs),
+              lessonIndex,
+            ).changes
 
           summary.lessonsFound += 1
         }
@@ -387,15 +418,20 @@ export function scanCourseLibrary(): ScanSummary {
         const attachmentsRoot = path.join(sectionRoot, 'Attachments')
         for (const attachmentAbsolutePath of collectAttachmentFiles(attachmentsRoot)) {
           const attachmentIndex = attachmentIndexFor(attachmentsRoot, attachmentAbsolutePath)
-          const lesson = attachmentIndex === null
-            ? undefined
-            : getLessonBySectionIndex(section.id, attachmentIndex)
+          const lesson =
+            attachmentIndex === null
+              ? undefined
+              : getLessonBySectionIndex(section.id, attachmentIndex)
 
-          summary.filesChanged += insertAttachment(course.id, {
-            section,
-            lesson,
-            attachmentIndex,
-          }, attachmentAbsolutePath)
+          summary.filesChanged += insertAttachment(
+            course.id,
+            {
+              section,
+              lesson,
+              attachmentIndex,
+            },
+            attachmentAbsolutePath,
+          )
 
           summary.attachmentsFound += 1
         }
@@ -403,7 +439,11 @@ export function scanCourseLibrary(): ScanSummary {
 
       const courseAttachmentsRoot = path.join(courseRoot, 'Attachments')
       for (const attachmentAbsolutePath of collectAttachmentFiles(courseAttachmentsRoot)) {
-        const target = courseAttachmentTargetFor(course.id, courseAttachmentsRoot, attachmentAbsolutePath)
+        const target = courseAttachmentTargetFor(
+          course.id,
+          courseAttachmentsRoot,
+          attachmentAbsolutePath,
+        )
 
         if (!target) {
           errors.push(`Could not match attachment to lesson: ${attachmentAbsolutePath}`)
@@ -416,7 +456,8 @@ export function scanCourseLibrary(): ScanSummary {
     }
 
     db.exec('COMMIT')
-    db.prepare(`
+    db.prepare(
+      `
       UPDATE scan_runs
       SET
         status = ?,
@@ -428,7 +469,8 @@ export function scanCourseLibrary(): ScanSummary {
         files_changed = ?,
         error_log = ?
       WHERE id = ?
-    `).run(
+    `,
+    ).run(
       'success',
       summary.coursesFound,
       summary.sectionsFound,
@@ -442,11 +484,13 @@ export function scanCourseLibrary(): ScanSummary {
     db.exec('ROLLBACK')
     summary.status = 'failed'
     errors.push(String(error))
-    db.prepare(`
+    db.prepare(
+      `
       UPDATE scan_runs
       SET status = ?, finished_at = CURRENT_TIMESTAMP, error_log = ?
       WHERE id = ?
-    `).run('failed', JSON.stringify(errors), scanRunId)
+    `,
+    ).run('failed', JSON.stringify(errors), scanRunId)
   }
 
   return summary

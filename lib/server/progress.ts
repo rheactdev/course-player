@@ -42,27 +42,29 @@ export function saveLessonProgress(lessonId: number, input: ProgressInput) {
   const lesson = db.prepare('SELECT id FROM lessons WHERE id = ? AND unavailable = 0').get(lessonId)
   if (!lesson) return null
 
-  const existing = db
-    .prepare('SELECT * FROM progress WHERE lesson_id = ?')
-    .get(lessonId) as ProgressRecord | undefined
+  const existing = db.prepare('SELECT * FROM progress WHERE lesson_id = ?').get(lessonId) as
+    | ProgressRecord
+    | undefined
 
-  const durationSeconds = toOptionalNumber(input.durationSeconds) ?? existing?.duration_seconds ?? null
+  const durationSeconds =
+    toOptionalNumber(input.durationSeconds) ?? existing?.duration_seconds ?? null
   const positionSeconds = clampToDuration(
     toOptionalNumber(input.positionSeconds) ?? existing?.position_seconds ?? 0,
     durationSeconds,
   )
   const isEndedEvent = input.eventType === 'ended'
-  const percentWatched = durationSeconds && durationSeconds > 0
-    ? Math.min(100, (positionSeconds / durationSeconds) * 100)
-    : 0
+  const percentWatched =
+    durationSeconds && durationSeconds > 0
+      ? Math.min(100, (positionSeconds / durationSeconds) * 100)
+      : 0
   const completed = isEndedEvent || percentWatched >= 90 ? 1 : 0
   const completedAt = completed ? existing?.completed_at || new Date().toISOString() : null
   const watchedSeconds = completed && durationSeconds ? durationSeconds : positionSeconds
-  const watchedIntervals: WatchedInterval[] = durationSeconds && positionSeconds > 0
-    ? [[0, watchedSeconds]]
-    : []
+  const watchedIntervals: WatchedInterval[] =
+    durationSeconds && positionSeconds > 0 ? [[0, watchedSeconds]] : []
 
-  db.prepare(`
+  db.prepare(
+    `
     INSERT INTO progress (
       lesson_id,
       position_seconds,
@@ -84,7 +86,8 @@ export function saveLessonProgress(lessonId: number, input: ProgressInput) {
       completed = excluded.completed,
       completed_at = excluded.completed_at,
       updated_at = CURRENT_TIMESTAMP
-  `).run(
+  `,
+  ).run(
     lessonId,
     positionSeconds,
     durationSeconds,

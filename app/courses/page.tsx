@@ -1,20 +1,20 @@
-import { BookOpen } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
-import { CourseCard } from "@/components/CourseCard";
-import { getDb } from "@/lib/server/db";
-import { serializeCourse } from "@/lib/server/serialize";
-import { parseTagsJson, uniqueTags } from "@/lib/server/tags";
-import type { CourseRecord } from "@/lib/server/types";
-import { ScanButton } from "./scan-button";
+import { BookOpen } from 'lucide-react'
+import { Card, CardContent } from '@/components/ui/card'
+import { CourseCard } from '@/components/CourseCard'
+import { getDb } from '@/lib/server/db'
+import { serializeCourse } from '@/lib/server/serialize'
+import { parseTagsJson, uniqueTags } from '@/lib/server/tags'
+import type { CourseRecord } from '@/lib/server/types'
+import { ScanButton } from './scan-button'
 
-export const runtime = "nodejs";
-export const dynamic = "force-dynamic";
+export const runtime = 'nodejs'
+export const dynamic = 'force-dynamic'
 
 type CourseOverviewRow = CourseRecord & {
-  sections_count: number;
-  lessons_count: number;
-  attachments_count: number;
-};
+  sections_count: number
+  lessons_count: number
+  attachments_count: number
+}
 
 function getCourses() {
   return getDb()
@@ -29,22 +29,21 @@ function getCourses() {
         ORDER BY course_name COLLATE NOCASE ASC
       `,
     )
-    .all() as CourseOverviewRow[];
+    .all() as CourseOverviewRow[]
 }
 
 function getAllCourseTags(courses: CourseOverviewRow[]) {
-  return uniqueTags(courses.flatMap((course) => parseTagsJson(course.tags_json)));
+  return uniqueTags(courses.flatMap((course) => parseTagsJson(course.tags_json)))
 }
 
 export default function CoursesPage() {
-  const courses = getCourses();
-  const availableTags = getAllCourseTags(courses);
+  const courses = getCourses()
+  const availableTags = getAllCourseTags(courses)
 
   return (
     <main className="relative isolate flex-1 overflow-hidden bg-background">
       <div className="grid-pattern pointer-events-none absolute inset-0 z-0 opacity-20"></div>
       <section className="relative z-10 container mx-auto px-4 py-6 sm:px-6 lg:px-8">
-
         <div className="mb-6 flex flex-col gap-3 pb-5 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <h1 className="mt-2 font-black uppercase text-4xl font-semibold leading-none tracking-normal">
@@ -61,11 +60,9 @@ export default function CoursesPage() {
         {courses.length ? (
           <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
             {courses.map((row) => {
-              const course = serializeCourse(row);
+              const course = serializeCourse(row)
 
-              return (
-                <CourseCard availableTags={availableTags} course={course} key={course.id} />
-              );
+              return <CourseCard availableTags={availableTags} course={course} key={course.id} />
             })}
           </div>
         ) : (
@@ -88,5 +85,5 @@ export default function CoursesPage() {
         )}
       </section>
     </main>
-  );
+  )
 }

@@ -32,10 +32,8 @@ const stickerVariants = cva(
       shadow: {
         none: '',
         default: 'shadow-[4px_4px_0px_hsl(var(--shadow-color))]',
-        colored:
-          'shadow-[4px_4px_0px_hsl(var(--primary))]',
-        double:
-          'shadow-[3px_3px_0px_hsl(var(--primary)),6px_6px_0px_hsl(var(--shadow-color))]',
+        colored: 'shadow-[4px_4px_0px_hsl(var(--primary))]',
+        double: 'shadow-[3px_3px_0px_hsl(var(--primary)),6px_6px_0px_hsl(var(--shadow-color))]',
       },
     },
     defaultVariants: {
@@ -44,12 +42,11 @@ const stickerVariants = cva(
       rotation: 'slight',
       shadow: 'default',
     },
-  }
+  },
 )
 
 export interface StickerProps
-  extends React.HTMLAttributes<HTMLDivElement>,
-    VariantProps<typeof stickerVariants> {
+  extends React.HTMLAttributes<HTMLDivElement>, VariantProps<typeof stickerVariants> {
   /** Show dashed outline effect */
   dashed?: boolean
   /** Show tape decoration on top */
@@ -72,24 +69,27 @@ const Sticker = React.forwardRef<HTMLDivElement, StickerProps>(
       children,
       ...props
     },
-    ref
+    ref,
   ) => {
     return (
       <div
         ref={ref}
         className={cn(
           stickerVariants({ variant, size, rotation, shadow }),
-          dashed && 'before:absolute before:inset-[-6px] before:border-2 before:border-dashed before:border-foreground/50',
-          tape && 'after:absolute after:left-1/2 after:top-[-8px] after:-translate-x-1/2 after:rotate-[-2deg] after:w-[50px] after:h-[16px] after:bg-accent/80 after:border-2 after:border-foreground',
-          interactive && 'cursor-pointer hover:translate-x-[4px] hover:translate-y-[4px] hover:shadow-none active:translate-x-[4px] active:translate-y-[4px] active:shadow-none',
-          className
+          dashed &&
+            'before:absolute before:inset-[-6px] before:border-2 before:border-dashed before:border-foreground/50',
+          tape &&
+            'after:absolute after:left-1/2 after:top-[-8px] after:-translate-x-1/2 after:rotate-[-2deg] after:w-[50px] after:h-[16px] after:bg-accent/80 after:border-2 after:border-foreground',
+          interactive &&
+            'cursor-pointer hover:translate-x-[4px] hover:translate-y-[4px] hover:shadow-none active:translate-x-[4px] active:translate-y-[4px] active:shadow-none',
+          className,
         )}
         {...props}
       >
         {children}
       </div>
     )
-  }
+  },
 )
 Sticker.displayName = 'Sticker'
 
@@ -122,12 +122,11 @@ const stampVariants = cva(
       size: 'default',
       rotation: 'slight',
     },
-  }
+  },
 )
 
 export interface StampProps
-  extends React.HTMLAttributes<HTMLDivElement>,
-    VariantProps<typeof stampVariants> {
+  extends React.HTMLAttributes<HTMLDivElement>, VariantProps<typeof stampVariants> {
   /** Show double ring effect */
   doubleRing?: boolean
 }
@@ -141,14 +140,14 @@ const Stamp = React.forwardRef<HTMLDivElement, StampProps>(
           stampVariants({ variant, size, rotation }),
           'shadow-[4px_4px_0px_hsl(var(--shadow-color))]',
           doubleRing && 'ring-2 ring-foreground ring-offset-2 ring-offset-background',
-          className
+          className,
         )}
         {...props}
       >
         <span className="text-center leading-tight">{children}</span>
       </div>
     )
-  }
+  },
 )
 Stamp.displayName = 'Stamp'
 
@@ -181,12 +180,11 @@ const stickyNoteVariants = cva(
       size: 'default',
       rotation: 'left',
     },
-  }
+  },
 )
 
 export interface StickyNoteProps
-  extends React.HTMLAttributes<HTMLDivElement>,
-    VariantProps<typeof stickyNoteVariants> {
+  extends React.HTMLAttributes<HTMLDivElement>, VariantProps<typeof stickyNoteVariants> {
   /** Show pin decoration on top */
   pin?: boolean
   /** Show folded corner effect */
@@ -200,8 +198,9 @@ const StickyNote = React.forwardRef<HTMLDivElement, StickyNoteProps>(
         ref={ref}
         className={cn(
           stickyNoteVariants({ variant, size, rotation }),
-          folded && 'before:absolute before:bottom-0 before:right-0 before:w-0 before:h-0 before:border-l-[20px] before:border-l-transparent before:border-b-[20px] before:border-b-foreground/20',
-          className
+          folded &&
+            'before:absolute before:bottom-0 before:right-0 before:w-0 before:h-0 before:border-l-[20px] before:border-l-transparent before:border-b-[20px] before:border-b-foreground/20',
+          className,
         )}
         {...props}
       >
@@ -211,7 +210,7 @@ const StickyNote = React.forwardRef<HTMLDivElement, StickyNoteProps>(
         {children}
       </div>
     )
-  }
+  },
 )
 StickyNote.displayName = 'StickyNote'
 

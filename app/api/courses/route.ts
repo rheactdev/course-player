@@ -12,7 +12,9 @@ type CourseListRow = CourseRecord & {
 }
 
 export function GET() {
-  const rows = getDb().prepare(`
+  const rows = getDb()
+    .prepare(
+      `
     SELECT
       courses.*,
       (SELECT COUNT(*) FROM sections WHERE sections.course_id = courses.id) AS sections_count,
@@ -20,7 +22,9 @@ export function GET() {
       (SELECT COUNT(*) FROM attachments WHERE attachments.course_id = courses.id AND attachments.unavailable = 0) AS attachments_count
     FROM courses
     ORDER BY course_name COLLATE NOCASE ASC
-  `).all() as CourseListRow[]
+  `,
+    )
+    .all() as CourseListRow[]
 
   return Response.json({
     courses: rows.map((row) => ({

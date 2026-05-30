@@ -21,7 +21,9 @@ export function parseTagsJson(tagsJson: string | null | undefined) {
 
   try {
     const tags = JSON.parse(tagsJson)
-    return Array.isArray(tags) ? uniqueTags(tags.filter((tag): tag is string => typeof tag === 'string')) : []
+    return Array.isArray(tags)
+      ? uniqueTags(tags.filter((tag): tag is string => typeof tag === 'string'))
+      : []
   } catch {
     return []
   }

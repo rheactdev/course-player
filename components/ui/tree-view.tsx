@@ -2,11 +2,7 @@ import * as React from 'react'
 import { ChevronRight, Folder, File } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Checkbox } from '@/components/ui/checkbox'
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from '@/components/ui/collapsible'
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
 
 export interface TreeNode {
   id: string
@@ -66,13 +62,13 @@ const TreeView = React.forwardRef<HTMLDivElement, TreeViewProps>(
       className,
       ...props
     },
-    ref
+    ref,
   ) => {
     const [uncontrolledExpandedIds, setUncontrolledExpandedIds] = React.useState<Set<string>>(
-      new Set(defaultExpandedIds)
+      new Set(defaultExpandedIds),
     )
     const [uncontrolledSelectedIds, setUncontrolledSelectedIds] = React.useState<Set<string>>(
-      new Set(defaultSelectedIds)
+      new Set(defaultSelectedIds),
     )
 
     const isExpandedControlled = controlledExpandedIds !== undefined
@@ -81,12 +77,12 @@ const TreeView = React.forwardRef<HTMLDivElement, TreeViewProps>(
     // Memoize Set objects to prevent useCallback dependencies from changing on every render
     const expandedIds = React.useMemo(
       () => (isExpandedControlled ? new Set(controlledExpandedIds) : uncontrolledExpandedIds),
-      [isExpandedControlled, controlledExpandedIds, uncontrolledExpandedIds]
+      [isExpandedControlled, controlledExpandedIds, uncontrolledExpandedIds],
     )
 
     const selectedIds = React.useMemo(
       () => (isSelectedControlled ? new Set(controlledSelectedIds) : uncontrolledSelectedIds),
-      [isSelectedControlled, controlledSelectedIds, uncontrolledSelectedIds]
+      [isSelectedControlled, controlledSelectedIds, uncontrolledSelectedIds],
     )
 
     const toggleExpanded = React.useCallback(
@@ -103,7 +99,7 @@ const TreeView = React.forwardRef<HTMLDivElement, TreeViewProps>(
         }
         onExpandedChange?.(Array.from(newExpandedIds))
       },
-      [expandedIds, isExpandedControlled, onExpandedChange]
+      [expandedIds, isExpandedControlled, onExpandedChange],
     )
 
     const toggleSelected = React.useCallback(
@@ -128,7 +124,7 @@ const TreeView = React.forwardRef<HTMLDivElement, TreeViewProps>(
         }
         onSelectedChange?.(Array.from(newSelectedIds))
       },
-      [selectedIds, selectionMode, isSelectedControlled, onSelectedChange]
+      [selectedIds, selectionMode, isSelectedControlled, onSelectedChange],
     )
 
     return (
@@ -149,7 +145,7 @@ const TreeView = React.forwardRef<HTMLDivElement, TreeViewProps>(
           className={cn(
             'border-3 border-foreground bg-background p-2',
             'shadow-[4px_4px_0px_hsl(var(--shadow-color))]',
-            className
+            className,
           )}
           {...props}
         >
@@ -159,7 +155,7 @@ const TreeView = React.forwardRef<HTMLDivElement, TreeViewProps>(
         </div>
       </TreeViewContext.Provider>
     )
-  }
+  },
 )
 TreeView.displayName = 'TreeView'
 
@@ -231,7 +227,7 @@ function TreeNodeItem({ node, level }: TreeNodeProps) {
         'flex items-center gap-2 px-2 py-1.5 cursor-pointer transition-colors',
         'hover:bg-muted focus:outline-none focus:bg-muted',
         isSelected && 'bg-accent',
-        node.disabled && 'opacity-50 cursor-not-allowed'
+        node.disabled && 'opacity-50 cursor-not-allowed',
       )}
       style={{ paddingLeft: `${level * 16 + 8}px` }}
     >
@@ -251,7 +247,7 @@ function TreeNodeItem({ node, level }: TreeNodeProps) {
           <ChevronRight
             className={cn(
               'h-4 w-4 stroke-[3] transition-transform duration-200',
-              isExpanded && 'rotate-90'
+              isExpanded && 'rotate-90',
             )}
           />
         </button>
@@ -273,11 +269,8 @@ function TreeNodeItem({ node, level }: TreeNodeProps) {
       {/* Icon */}
       {showIcons && (
         <span className="shrink-0">
-          {node.icon || (hasChildren ? (
-            <Folder className="h-4 w-4" />
-          ) : (
-            <File className="h-4 w-4" />
-          ))}
+          {node.icon ||
+            (hasChildren ? <Folder className="h-4 w-4" /> : <File className="h-4 w-4" />)}
         </span>
       )}
 

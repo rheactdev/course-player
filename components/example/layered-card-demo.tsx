@@ -4,7 +4,6 @@ import {
   LayeredCardTitle,
   LayeredCardDescription,
   LayeredCardContent,
-  LayeredCardFooter,
 } from '@/components/ui/layered-card'
 
 export default function Example() {

@@ -1,13 +1,18 @@
 import { Home, Settings } from 'lucide-react'
 import {
-  Sidebar, SidebarProvider, SidebarHeader, SidebarContent,
-  SidebarItem, SidebarToggle, SidebarInset
+  Sidebar,
+  SidebarProvider,
+  SidebarHeader,
+  SidebarContent,
+  SidebarItem,
+  SidebarToggle,
+  SidebarInset,
 } from '@/components/ui/sidebar'
 
 export default function Example() {
   return (
     <SidebarProvider>
-      <Sidebar >
+      <Sidebar>
         <SidebarHeader>Logo</SidebarHeader>
         <SidebarContent>
           <SidebarItem icon={<Home />}>Home</SidebarItem>

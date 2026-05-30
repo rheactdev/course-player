@@ -1,17 +1,41 @@
 export type LoaderCurveKey =
-  | 'rose' | 'lissajous' | 'butterfly' | 'hypotrochoid'
-  | 'cardioid' | 'lemniscate' | 'fourier' | 'rose3'
-  | 'astroid' | 'deltoid' | 'nephroid' | 'epicycloid'
-  | 'superellipse' | 'triskelion' | 'involute'
-  | 'spiral' | 'heart'
+  | 'rose'
+  | 'lissajous'
+  | 'butterfly'
+  | 'hypotrochoid'
+  | 'cardioid'
+  | 'lemniscate'
+  | 'fourier'
+  | 'rose3'
+  | 'astroid'
+  | 'deltoid'
+  | 'nephroid'
+  | 'epicycloid'
+  | 'superellipse'
+  | 'triskelion'
+  | 'involute'
+  | 'spiral'
+  | 'heart'
 
 export type ProgressCurveKey =
-  | 'spiral' | 'heart' | 'lissajous' | 'cardioid' | 'rose'
-  | 'astroid' | 'superellipse' | 'deltoid' | 'nephroid'
+  | 'spiral'
+  | 'heart'
+  | 'lissajous'
+  | 'cardioid'
+  | 'rose'
+  | 'astroid'
+  | 'superellipse'
+  | 'deltoid'
+  | 'nephroid'
 
 export type BackgroundCurveKey =
-  | 'rose' | 'lissajous' | 'fourier' | 'spiral'
-  | 'triskelion' | 'involute' | 'epicycloid'
+  | 'rose'
+  | 'lissajous'
+  | 'fourier'
+  | 'spiral'
+  | 'triskelion'
+  | 'involute'
+  | 'epicycloid'
 
 export type CurveKey = LoaderCurveKey | ProgressCurveKey | BackgroundCurveKey
 
@@ -82,10 +106,7 @@ const CURVE_DEFS: Record<string, CurveDefinition> = {
     pulseDurationMs: 6000,
     defaultSegments: 480,
     compute: (t, ds) => {
-      const r =
-        Math.exp(Math.cos(t)) -
-        2 * Math.cos(4 * t) -
-        Math.pow(Math.sin(t / 12), 5)
+      const r = Math.exp(Math.cos(t)) - 2 * Math.cos(4 * t) - Math.pow(Math.sin(t / 12), 5)
       const scale = 7 + ds * 2.5
       return { x: 50 + scale * r * Math.cos(t), y: 50 + scale * r * Math.sin(t) }
     },
@@ -153,15 +174,9 @@ const CURVE_DEFS: Record<string, CurveDefinition> = {
       const a3 = 7
       const a4 = 4 + ds * 3
       const x =
-        a1 * Math.cos(t) +
-        a2 * Math.cos(2 * t) +
-        a3 * Math.cos(3 * t) +
-        a4 * Math.cos(5 * t)
+        a1 * Math.cos(t) + a2 * Math.cos(2 * t) + a3 * Math.cos(3 * t) + a4 * Math.cos(5 * t)
       const y =
-        a1 * Math.sin(t) +
-        a2 * Math.sin(2 * t) -
-        a3 * Math.sin(3 * t) +
-        a4 * Math.sin(5 * t)
+        a1 * Math.sin(t) + a2 * Math.sin(2 * t) - a3 * Math.sin(3 * t) + a4 * Math.sin(5 * t)
       return { x: 50 + x, y: 50 + y }
     },
   },
@@ -189,11 +204,7 @@ const CURVE_DEFS: Record<string, CurveDefinition> = {
       const scale = 1.8 + ds * 0.4
       const x = scale * 16 * Math.pow(Math.sin(t), 3)
       const y =
-        -scale *
-        (13 * Math.cos(t) -
-          5 * Math.cos(2 * t) -
-          2 * Math.cos(3 * t) -
-          Math.cos(4 * t))
+        -scale * (13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t))
       return { x: 50 + x, y: 50 + y }
     },
   },
@@ -373,9 +384,7 @@ export function buildPath(curve: string, detailScale = 1.0, segments?: number): 
     const progress = i / n
     const { x, y } = getPoint(curve, progress, detailScale)
     // Use M (moveto) at the start or at declared discontinuity points
-    const isDiscontinuous = discontinuities.some(
-      (dp) => Math.abs(progress - dp) < 0.5 / n
-    )
+    const isDiscontinuous = discontinuities.some((dp) => Math.abs(progress - dp) < 0.5 / n)
     if (i === 0 || isDiscontinuous) {
       d += ` M ${x.toFixed(2)} ${y.toFixed(2)}`
     } else {

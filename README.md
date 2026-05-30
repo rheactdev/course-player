@@ -3,6 +3,7 @@
 A local-first course video player built with Next.js, SQLite, and a bold, compact UI courtesy of [Boldkit](https://github.com/ANIBIT14/boldkit). It scans a folder of downloaded courses, indexes sections, lessons, captions, attachments, and watch progress, then serves everything through stable ID-based routes.
 
 ## Screenshots
+
 <img width="2858" height="1496" alt="2026-05-29 18 39 50 localhost 5293ca5b2fa0" src="https://github.com/user-attachments/assets/056d3868-8e56-4c97-9af0-78e7a7e740e6" />
 <img width="2858" height="1496" alt="2026-05-29 18 39 37 localhost e3adcaed4daa" src="https://github.com/user-attachments/assets/d2a5d05b-e38d-4690-9b02-edcdfcd3dba9" />
 

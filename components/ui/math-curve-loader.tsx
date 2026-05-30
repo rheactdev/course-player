@@ -33,8 +33,7 @@ const SPEED_DURATION: Record<string, number> = {
 }
 
 export interface MathCurveLoaderProps
-  extends React.SVGAttributes<SVGSVGElement>,
-    VariantProps<typeof mathCurveLoaderVariants> {
+  extends React.SVGAttributes<SVGSVGElement>, VariantProps<typeof mathCurveLoaderVariants> {
   curve?: LoaderCurveKey
   speed?: 'slow' | 'normal' | 'fast'
   trackColor?: string
@@ -57,7 +56,7 @@ const MathCurveLoader = React.forwardRef<SVGSVGElement, MathCurveLoaderProps>(
       'aria-label': ariaLabel = 'Loading',
       ...props
     },
-    ref
+    ref,
   ) => {
     const pathRef = React.useRef<SVGPathElement>(null)
     const rectRef = React.useRef<SVGRectElement>(null)
@@ -116,11 +115,7 @@ const MathCurveLoader = React.forwardRef<SVGSVGElement, MathCurveLoaderProps>(
           xmlns="http://www.w3.org/2000/svg"
           role="status"
           aria-label={ariaLabel}
-          className={cn(
-            mathCurveLoaderVariants({ size }),
-            'group',
-            className
-          )}
+          className={cn(mathCurveLoaderVariants({ size }), 'group', className)}
           {...props}
         >
           {/* Track layer */}
@@ -149,7 +144,7 @@ const MathCurveLoader = React.forwardRef<SVGSVGElement, MathCurveLoaderProps>(
         </svg>
       </ErrorBoundary>
     )
-  }
+  },
 )
 MathCurveLoader.displayName = 'MathCurveLoader'
 

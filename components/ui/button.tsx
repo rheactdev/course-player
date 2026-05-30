@@ -18,11 +18,9 @@ const buttonVariants = cva(
           'bg-destructive text-destructive-foreground shadow-[4px_4px_0px_hsl(var(--shadow-color))] hover:translate-x-[4px] hover:translate-y-[4px] hover:shadow-none active:translate-x-[4px] active:translate-y-[4px] active:shadow-none',
         outline:
           'bg-background text-foreground shadow-[4px_4px_0px_hsl(var(--shadow-color))] hover:translate-x-[4px] hover:translate-y-[4px] hover:shadow-none hover:bg-muted active:translate-x-[4px] active:translate-y-[4px] active:shadow-none',
-        ghost:
-          'border-transparent shadow-none hover:bg-muted hover:border-foreground',
+        ghost: 'border-transparent shadow-none hover:bg-muted hover:border-foreground',
         link: 'border-transparent shadow-none underline-offset-4 hover:underline text-primary',
-        noShadow:
-          'bg-primary text-primary-foreground',
+        noShadow: 'bg-primary text-primary-foreground',
         reverse:
           'bg-primary text-primary-foreground hover:translate-x-[-4px] hover:translate-y-[-4px] hover:shadow-[4px_4px_0px_hsl(var(--shadow-color))]',
       },
@@ -47,12 +45,11 @@ const buttonVariants = cva(
       size: 'default',
       animation: 'none',
     },
-  }
+  },
 )
 
 export interface ButtonProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement>,
-    VariantProps<typeof buttonVariants> {
+  extends React.ButtonHTMLAttributes<HTMLButtonElement>, VariantProps<typeof buttonVariants> {
   asChild?: boolean
 }
 
@@ -66,7 +63,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         {...props}
       />
     )
-  }
+  },
 )
 Button.displayName = 'Button'
 

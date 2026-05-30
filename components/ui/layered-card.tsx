@@ -30,8 +30,7 @@ const layeredCardVariants = cva('relative', {
 })
 
 export interface LayeredCardProps
-  extends React.HTMLAttributes<HTMLDivElement>,
-    VariantProps<typeof layeredCardVariants> {
+  extends React.HTMLAttributes<HTMLDivElement>, VariantProps<typeof layeredCardVariants> {
   /** Make the card interactive with hover effects */
   interactive?: boolean
 }
@@ -68,11 +67,7 @@ const LayeredCard = React.forwardRef<HTMLDivElement, LayeredCardProps>(
         {/* Layer 3 (furthest back) */}
         {layerCount >= 3 && (
           <div
-            className={cn(
-              'absolute inset-0 border-3 border-foreground',
-              layerBg,
-              'opacity-50'
-            )}
+            className={cn('absolute inset-0 border-3 border-foreground', layerBg, 'opacity-50')}
             style={{
               transform: `translate(${offsetPx * 3}px, ${offsetPx * 3}px)`,
             }}
@@ -82,11 +77,7 @@ const LayeredCard = React.forwardRef<HTMLDivElement, LayeredCardProps>(
         {/* Layer 2 */}
         {layerCount >= 2 && (
           <div
-            className={cn(
-              'absolute inset-0 border-3 border-foreground',
-              layerBg,
-              'opacity-70'
-            )}
+            className={cn('absolute inset-0 border-3 border-foreground', layerBg, 'opacity-70')}
             style={{
               transform: `translate(${offsetPx * 2}px, ${offsetPx * 2}px)`,
             }}
@@ -108,41 +99,36 @@ const LayeredCard = React.forwardRef<HTMLDivElement, LayeredCardProps>(
           className={cn(
             'relative border-3 border-foreground bg-card text-card-foreground',
             interactive &&
-              'cursor-pointer transition-transform duration-200 hover:translate-x-[-4px] hover:translate-y-[-4px]'
+              'cursor-pointer transition-transform duration-200 hover:translate-x-[-4px] hover:translate-y-[-4px]',
           )}
         >
           {children}
         </div>
       </div>
     )
-  }
+  },
 )
 LayeredCard.displayName = 'LayeredCard'
 
-const LayeredCardHeader = React.forwardRef<
-  HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement>
->(({ className, ...props }, ref) => (
-  <div
-    ref={ref}
-    className={cn(
-      'flex flex-col space-y-1.5 border-b-3 border-foreground bg-muted p-4',
-      className
-    )}
-    {...props}
-  />
-))
+const LayeredCardHeader = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
+  ({ className, ...props }, ref) => (
+    <div
+      ref={ref}
+      className={cn(
+        'flex flex-col space-y-1.5 border-b-3 border-foreground bg-muted p-4',
+        className,
+      )}
+      {...props}
+    />
+  ),
+)
 LayeredCardHeader.displayName = 'LayeredCardHeader'
 
 const LayeredCardTitle = React.forwardRef<
   HTMLHeadingElement,
   React.HTMLAttributes<HTMLHeadingElement>
 >(({ className, ...props }, ref) => (
-  <h3
-    ref={ref}
-    className={cn('text-xl font-bold uppercase tracking-wide', className)}
-    {...props}
-  />
+  <h3 ref={ref} className={cn('text-xl font-bold uppercase tracking-wide', className)} {...props} />
 ))
 LayeredCardTitle.displayName = 'LayeredCardTitle'
 
@@ -154,27 +140,20 @@ const LayeredCardDescription = React.forwardRef<
 ))
 LayeredCardDescription.displayName = 'LayeredCardDescription'
 
-const LayeredCardContent = React.forwardRef<
-  HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement>
->(({ className, ...props }, ref) => (
-  <div ref={ref} className={cn('p-4', className)} {...props} />
-))
+const LayeredCardContent = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
+  ({ className, ...props }, ref) => <div ref={ref} className={cn('p-4', className)} {...props} />,
+)
 LayeredCardContent.displayName = 'LayeredCardContent'
 
-const LayeredCardFooter = React.forwardRef<
-  HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement>
->(({ className, ...props }, ref) => (
-  <div
-    ref={ref}
-    className={cn(
-      'flex items-center border-t-3 border-foreground bg-muted p-4',
-      className
-    )}
-    {...props}
-  />
-))
+const LayeredCardFooter = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
+  ({ className, ...props }, ref) => (
+    <div
+      ref={ref}
+      className={cn('flex items-center border-t-3 border-foreground bg-muted p-4', className)}
+      {...props}
+    />
+  ),
+)
 LayeredCardFooter.displayName = 'LayeredCardFooter'
 
 export {

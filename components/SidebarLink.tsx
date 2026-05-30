@@ -30,7 +30,7 @@ export function SidebarLink({
         sidebarItemVariants({ variant }),
         'w-full',
         isCollapsed && 'justify-center px-2',
-        className
+        className,
       )}
       {...props}
     >
@@ -38,15 +38,8 @@ export function SidebarLink({
 
       {!isCollapsed && (
         <>
-          <span className="min-w-0 flex-1">
-            {children}
-          </span>
-
-          {trailingIcon && (
-            <span className="ml-auto shrink-0">
-              {trailingIcon}
-            </span>
-          )}
+          {trailingIcon && <span className="ml-auto shrink-0">{trailingIcon}</span>}
+          <span className="min-w-0 flex-1">{children}</span>
         </>
       )}
     </Link>

@@ -1,31 +1,30 @@
-"use client";
+'use client'
 
-import { useState } from "react";
-import Image from "next/image";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { Menu, Moon, Sun, X } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { Breadcrumb, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator } from "./ui/breadcrumb";
-import { AppBreadcrumb } from "./AppBreadcrumb";
+import { useState } from 'react'
+import Image from 'next/image'
+import Link from 'next/link'
+import { usePathname } from 'next/navigation'
+import { Menu, Moon, Sun, X } from 'lucide-react'
+import { cn } from '@/lib/utils'
+import { AppBreadcrumb } from './AppBreadcrumb'
 
 interface NavItem {
-  href: string;
-  label: string;
+  href: string
+  label: string
 }
 
-const navItems: NavItem[] = [];
+const navItems: NavItem[] = []
 
 export function SiteHeader() {
-  const pathname = usePathname();
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isDark, setIsDark] = useState(true);
+  const pathname = usePathname()
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const [isDark, setIsDark] = useState(true)
 
   function toggleTheme() {
-    const nextIsDark = !isDark;
+    const nextIsDark = !isDark
 
-    document.documentElement.classList.toggle("dark", nextIsDark);
-    setIsDark(nextIsDark);
+    document.documentElement.classList.toggle('dark', nextIsDark)
+    setIsDark(nextIsDark)
   }
 
   return (
@@ -50,9 +49,7 @@ export function SiteHeader() {
             src="/icons8-origami.svg"
             width={28}
           />
-          <span className="font-heading text-2xl leading-none tracking-wider">
-            StudyNest
-          </span>
+          <span className="font-heading text-2xl leading-none tracking-wider">StudyNest</span>
         </Link>
 
         <nav className="hidden items-center lg:flex" aria-label="Main navigation">
@@ -60,12 +57,11 @@ export function SiteHeader() {
         </nav>
 
         <div className="flex items-center gap-1.5">
-
           <button
-            aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
+            aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
             className="flex h-8 w-8 shrink-0 items-center justify-center border-3 border-foreground bg-background transition-colors duration-150 hover:bg-foreground hover:text-background"
             onClick={toggleTheme}
-            title={isDark ? "Switch to light mode" : "Switch to dark mode"}
+            title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
             type="button"
           >
             {isDark ? (
@@ -78,7 +74,7 @@ export function SiteHeader() {
           <button
             aria-controls="mobile-menu"
             aria-expanded={isMenuOpen}
-            aria-label={isMenuOpen ? "Close menu" : "Open menu"}
+            aria-label={isMenuOpen ? 'Close menu' : 'Open menu'}
             className="flex h-8 w-8 shrink-0 items-center justify-center border-3 border-foreground bg-background transition-colors duration-150 hover:bg-foreground hover:text-background lg:hidden"
             onClick={() => setIsMenuOpen((open) => !open)}
             type="button"
@@ -100,27 +96,27 @@ export function SiteHeader() {
         >
           <div className="grid px-4 py-2 sm:px-6 lg:px-8">
             {navItems.map((item) => {
-              const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
+              const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`)
 
               return (
                 <Link
                   key={item.href}
                   className={cn(
-                    "border-b-2 border-foreground/20 px-2 py-3 text-sm font-bold tracking-wide transition-colors last:border-b-0",
+                    'border-b-2 border-foreground/20 px-2 py-3 text-sm font-bold tracking-wide transition-colors last:border-b-0',
                     isActive
-                      ? "bg-primary text-primary-foreground"
-                      : "text-foreground/70 hover:bg-muted hover:text-foreground",
+                      ? 'bg-primary text-primary-foreground'
+                      : 'text-foreground/70 hover:bg-muted hover:text-foreground',
                   )}
                   href={item.href}
                   onClick={() => setIsMenuOpen(false)}
                 >
                   {item.label}
                 </Link>
-              );
+              )
             })}
           </div>
         </nav>
       ) : null}
     </header>
-  );
+  )
 }

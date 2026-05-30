@@ -68,7 +68,9 @@ export function streamCourseFile(relativePath: string, rangeHeader: string | nul
 
   return {
     status: 206,
-    body: Readable.toWeb(createReadStream(file.absolutePath, { start, end })) as ReadableStream<Uint8Array>,
+    body: Readable.toWeb(
+      createReadStream(file.absolutePath, { start, end }),
+    ) as ReadableStream<Uint8Array>,
     headers,
   }
 }

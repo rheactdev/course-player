@@ -54,9 +54,10 @@ export function LessonVideoPlayer({
     if (!payload) return
 
     const lastSyncedPosition = lastSyncedPositionRef.current
-    const positionDelta = lastSyncedPosition === null
-      ? Number.POSITIVE_INFINITY
-      : Math.abs(payload.positionSeconds - lastSyncedPosition)
+    const positionDelta =
+      lastSyncedPosition === null
+        ? Number.POSITIVE_INFINITY
+        : Math.abs(payload.positionSeconds - lastSyncedPosition)
     const shouldSkip =
       !urgent &&
       eventType === 'timeupdate' &&
@@ -101,7 +102,7 @@ export function LessonVideoPlayer({
     const video = videoRef.current
     if (!video || restoredRef.current) return
 
-    const resumePosition = initialProgress?.completed ? 0 : initialProgress?.positionSeconds ?? 0
+    const resumePosition = initialProgress?.completed ? 0 : (initialProgress?.positionSeconds ?? 0)
     const duration = Number.isFinite(video.duration) ? video.duration : null
     const shouldResume =
       resumePosition > 3 &&

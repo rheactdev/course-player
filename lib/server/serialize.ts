@@ -76,7 +76,9 @@ export function serializeAttachment(attachment: AttachmentRecord): SerializedAtt
   }
 }
 
-export function serializeProgress(progress: ProgressRecord | null | undefined): SerializedProgress | null {
+export function serializeProgress(
+  progress: ProgressRecord | null | undefined,
+): SerializedProgress | null {
   if (!progress) return null
 
   return {

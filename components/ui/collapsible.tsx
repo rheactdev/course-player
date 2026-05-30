@@ -10,10 +10,7 @@ const CollapsibleTrigger = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <CollapsiblePrimitive.CollapsibleTrigger
     ref={ref}
-    className={cn(
-      'transition-all duration-150 [&[data-state=open]>svg]:rotate-180',
-      className
-    )}
+    className={cn('transition-all duration-150 [&[data-state=open]>svg]:rotate-180', className)}
     {...props}
   />
 ))
@@ -27,7 +24,7 @@ const CollapsibleContent = React.forwardRef<
     ref={ref}
     className={cn(
       'overflow-hidden transition-all data-[state=closed]:animate-collapsible-up data-[state=open]:animate-collapsible-down',
-      className
+      className,
     )}
     {...props}
   />

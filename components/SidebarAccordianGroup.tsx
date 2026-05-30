@@ -1,5 +1,3 @@
-import { Check, CirclePlay } from 'lucide-react'
-
 import {
   Accordion,
   AccordionContent,
@@ -9,6 +7,7 @@ import {
 
 import { cn } from '@/lib/utils'
 import { SidebarLink } from './SidebarLink'
+import { Checkbox } from './ui/checkbox'
 
 type Id = string | number
 
@@ -43,9 +42,7 @@ export function CourseSidebarAccordion({
 }: CourseSidebarAccordionProps) {
   const completedLessonIdSet = new Set(completedLessonIds.map(String))
 
-  const defaultOpenSections = sections.map(
-    (section) => `section-${section.id}`
-  )
+  const defaultOpenSections = sections.map((section) => `section-${section.id}`)
 
   return (
     <Accordion
@@ -54,16 +51,16 @@ export function CourseSidebarAccordion({
       className={cn(className, 'border-0')}
     >
       {sections.map((section) => {
-        const sectionLessons = lessons.filter(
-          (lesson) => lesson.section_id === section.id
-        )
+        const sectionLessons = lessons.filter((lesson) => lesson.section_id === section.id)
 
         return (
-          <AccordionItem key={section.id} value={`section-${section.id}`} className='border-r-0 border-l-0 first:border-t-0 last:border-b-0 shadow-none'>
+          <AccordionItem
+            key={section.id}
+            value={`section-${section.id}`}
+            className="border-r-0 border-l-0 first:border-t-0 last:border-b-0 shadow-none"
+          >
             <AccordionTrigger className="text-left text-sm text-accent-foreground">
-              <span>
-                {section.title}
-              </span>
+              <span>{section.title}</span>
             </AccordionTrigger>
 
             <AccordionContent className="space-y-1 p-2 first:pt-0 px-0 m-0">
@@ -78,15 +75,25 @@ export function CourseSidebarAccordion({
                     className={cn(
                       'gap-2 p-3 m-0',
                       isCompleted
-                        ? 'bg-success text-success-foreground hover:bg-success'
+                        ? 'text-muted-foreground'
                         : isSelected
-                        ? 'bg-primary text-primary-foreground hover:bg-primary'
-                        : 'bg-background'
+                          ? 'bg-primary text-primary-foreground hover:bg-primary'
+                          : 'bg-background',
                     )}
                     trailingIcon={
-                      isCompleted
-                        ? <Check className="h-5 w-5" />
-                        : <CirclePlay className="h-5 w-5" />
+                      isCompleted ? (
+                        <Checkbox
+                          disabled
+                          checked={true}
+                          className="h-5 w-5 hover:translate-x-0 hover:translate-y-0 shadow-none align-middle"
+                        />
+                      ) : (
+                        <Checkbox
+                          disabled
+                          checked={false}
+                          className="h-5 w-5 hover:translate-x-0 hover:translate-y-0 shadow-none align-middle"
+                        />
+                      )
                     }
                   >
                     {lesson.title}

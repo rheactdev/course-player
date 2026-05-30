@@ -23,7 +23,11 @@ export function resolveCourseRelativePath(relativePath: string) {
   const config = getServerConfig()
   const normalized = normalizeRelativePath(relativePath)
 
-  if (path.isAbsolute(normalized) || normalized.includes('\0') || hasIgnoredPathSegment(normalized)) {
+  if (
+    path.isAbsolute(normalized) ||
+    normalized.includes('\0') ||
+    hasIgnoredPathSegment(normalized)
+  ) {
     return null
   }
 

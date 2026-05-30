@@ -14,9 +14,7 @@ export default function Example() {
       <SheetContent>
         <SheetHeader>
           <SheetTitle>Sheet Title</SheetTitle>
-          <SheetDescription>
-            This is a sheet description.
-          </SheetDescription>
+          <SheetDescription>This is a sheet description.</SheetDescription>
         </SheetHeader>
       </SheetContent>
     </Sheet>

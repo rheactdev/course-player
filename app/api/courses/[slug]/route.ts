@@ -1,7 +1,12 @@
 import { getDb } from '@/lib/server/db'
 import { serializeAttachment, serializeCourse } from '@/lib/server/serialize'
 import { uniqueTags } from '@/lib/server/tags'
-import type { AttachmentRecord, CourseRecord, LessonRecord, SectionRecord } from '@/lib/server/types'
+import type {
+  AttachmentRecord,
+  CourseRecord,
+  LessonRecord,
+  SectionRecord,
+} from '@/lib/server/types'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -9,30 +14,44 @@ export const dynamic = 'force-dynamic'
 export async function GET(_request: Request, { params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
   const db = getDb()
-  const course = db.prepare('SELECT * FROM courses WHERE slug = ?').get(slug) as CourseRecord | undefined
+  const course = db.prepare('SELECT * FROM courses WHERE slug = ?').get(slug) as
+    | CourseRecord
+    | undefined
 
   if (!course) {
     return Response.json({ error: 'Course not found' }, { status: 404 })
   }
 
-  const sections = db.prepare(`
+  const sections = db
+    .prepare(
+      `
     SELECT * FROM sections
     WHERE course_id = ?
     ORDER BY sort_order ASC, title COLLATE NOCASE ASC
-  `).all(course.id) as SectionRecord[]
+  `,
+    )
+    .all(course.id) as SectionRecord[]
 
-  const lessons = db.prepare(`
+  const lessons = db
+    .prepare(
+      `
     SELECT lessons.* FROM lessons
     INNER JOIN sections ON sections.id = lessons.section_id
     WHERE lessons.course_id = ?
     ORDER BY sections.sort_order ASC, lessons.sort_order ASC, lessons.title COLLATE NOCASE ASC
-  `).all(course.id) as LessonRecord[]
+  `,
+    )
+    .all(course.id) as LessonRecord[]
 
-  const attachments = db.prepare(`
+  const attachments = db
+    .prepare(
+      `
     SELECT * FROM attachments
     WHERE course_id = ?
     ORDER BY attachment_index ASC, name COLLATE NOCASE ASC
-  `).all(course.id) as AttachmentRecord[]
+  `,
+    )
+    .all(course.id) as AttachmentRecord[]
 
   return Response.json({
     course: {
@@ -63,7 +82,9 @@ export async function GET(_request: Request, { params }: { params: Promise<{ slu
               .map(serializeAttachment),
           })),
         attachments: attachments
-          .filter((attachment) => attachment.section_id === section.id && attachment.lesson_id === null)
+          .filter(
+            (attachment) => attachment.section_id === section.id && attachment.lesson_id === null,
+          )
           .map(serializeAttachment),
       })),
     },
@@ -91,11 +112,15 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ sl
   }
 
   const db = getDb()
-  const result = db.prepare(`
+  const result = db
+    .prepare(
+      `
     UPDATE courses
     SET tags_json = ?, updated_at = CURRENT_TIMESTAMP
     WHERE slug = ?
-  `).run(JSON.stringify(tags), slug)
+  `,
+    )
+    .run(JSON.stringify(tags), slug)
 
   if (!result.changes) {
     return Response.json({ error: 'Course not found' }, { status: 404 })

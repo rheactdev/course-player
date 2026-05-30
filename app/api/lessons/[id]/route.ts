@@ -19,14 +19,20 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
   }
 
   const db = getDb()
-  const lesson = db.prepare('SELECT * FROM lessons WHERE id = ?').get(lessonId) as LessonRecord | undefined
+  const lesson = db.prepare('SELECT * FROM lessons WHERE id = ?').get(lessonId) as
+    | LessonRecord
+    | undefined
 
   if (!lesson) {
     return Response.json({ error: 'Lesson not found' }, { status: 404 })
   }
 
-  const course = db.prepare('SELECT * FROM courses WHERE id = ?').get(lesson.course_id) as CourseRecord
-  const section = db.prepare('SELECT * FROM sections WHERE id = ?').get(lesson.section_id) as SectionRecord
+  const course = db
+    .prepare('SELECT * FROM courses WHERE id = ?')
+    .get(lesson.course_id) as CourseRecord
+  const section = db
+    .prepare('SELECT * FROM sections WHERE id = ?')
+    .get(lesson.section_id) as SectionRecord
   const attachments = db
     .prepare('SELECT * FROM attachments WHERE lesson_id = ? ORDER BY name COLLATE NOCASE ASC')
     .all(lesson.id) as AttachmentRecord[]
