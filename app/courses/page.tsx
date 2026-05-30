@@ -62,7 +62,7 @@ export default function CoursesPage() {
             {courses.map((row) => {
               const course = serializeCourse(row)
 
-              return <CourseCard availableTags={availableTags} course={course} key={course.id} />
+              return <CourseCard course={course} key={course.id} />
             })}
           </div>
         ) : (

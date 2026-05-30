@@ -2,62 +2,22 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
-import { ImageIcon, Settings } from 'lucide-react'
+import { ImageIcon } from 'lucide-react'
 
-import { CourseTagSelector } from '@/components/CourseTagSelector'
 import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from '@/components/ui/sheet'
 import type { SerializedCourse } from '@/lib/server/serialize'
 
 type CourseCardProps = {
   course: SerializedCourse
-  availableTags: string[]
 }
 
-export function CourseCard({ course, availableTags }: CourseCardProps) {
+export function CourseCard({ course }: CourseCardProps) {
   return (
-    <Card className="relative min-h-[24rem] bg-card">
-      <Sheet>
-        <SheetTrigger asChild>
-          <Button
-            aria-label={`Edit tags for ${course.courseName}`}
-            className="absolute right-3 top-3 z-20 bg-background/95"
-            size="icon"
-            variant="outline"
-          >
-            <Settings className="h-4 w-4" aria-hidden="true" />
-          </Button>
-        </SheetTrigger>
-        <SheetContent className="w-[min(92vw,28rem)] overflow-y-auto" side="right">
-          <SheetHeader>
-            <SheetTitle>Course Tags</SheetTitle>
-            <SheetDescription>{course.courseName}</SheetDescription>
-          </SheetHeader>
-          <CourseTagSelector
-            availableTags={availableTags}
-            courseSlug={course.slug}
-            initialTags={course.tags}
-            variant="plain"
-          />
-        </SheetContent>
-      </Sheet>
-
-      <Link
-        aria-label={`Open ${course.courseName}`}
-        className="block h-full transition-all duration-200 hover:translate-x-[4px] hover:translate-y-[4px] hover:shadow-none active:translate-x-[4px] active:translate-y-[4px]"
-        href={`/courses/${course.slug}`}
-      >
+    <Link href={`/courses/${course.slug}`} className="block h-full outline-none">
+      <Card interactive className="flex h-full flex-col">
         <CardContent className="p-0">
-          <div className="relative flex aspect-[4/3] overflow-hidden bg-muted">
+          <div className="relative flex w-full aspect-[4/3] overflow-hidden bg-muted">
             {course.coverPath ? (
               <Image
                 alt=""
@@ -75,7 +35,7 @@ export function CourseCard({ course, availableTags }: CourseCardProps) {
             )}
           </div>
         </CardContent>
-        <CardHeader className="border-b-0 border-t-3">
+        <CardHeader className="border-b-0 border-t-3 flex-1">
           <CardTitle>{course.creator || 'Unknown'}</CardTitle>
           <CardDescription>{course.courseName}</CardDescription>
           {course.tags.length ? (
@@ -88,7 +48,7 @@ export function CourseCard({ course, availableTags }: CourseCardProps) {
             </div>
           ) : null}
         </CardHeader>
-      </Link>
-    </Card>
+      </Card>
+    </Link>
   )
 }

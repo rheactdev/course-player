@@ -4,9 +4,10 @@ import { useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Menu, Moon, Sun, X } from 'lucide-react'
+import { GitBranch, Menu, Moon, Sun, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { AppBreadcrumb } from './AppBreadcrumb'
+import { Button } from './ui/button'
 
 interface NavItem {
   href: string
@@ -57,9 +58,13 @@ export function SiteHeader() {
         </nav>
 
         <div className="flex items-center gap-1.5">
-          <button
+          <Button size="sm">
+            <Link href="/tags">Tags</Link>
+          </Button>
+          <Button
             aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
-            className="flex h-8 w-8 shrink-0 items-center justify-center border-3 border-foreground bg-background transition-colors duration-150 hover:bg-foreground hover:text-background"
+            variant="outline"
+            size="sm"
             onClick={toggleTheme}
             title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
             type="button"
@@ -69,7 +74,7 @@ export function SiteHeader() {
             ) : (
               <Moon className="h-3.5 w-3.5" aria-hidden="true" />
             )}
-          </button>
+          </Button>
 
           <button
             aria-controls="mobile-menu"
