@@ -87,7 +87,7 @@ export const SidebarRowLink = ({
       {/* Attachment area rendered outside the row Link */}
       {hasAttachments ? (
         <div className="flex px-4 shrink-0 items-center justify-center border-l border-muted py-4 relative z-20">
-          <AttachmentPopover />
+          <AttachmentPopover attachments={attachments} />
         </div>
       ) : null}
     </li>
