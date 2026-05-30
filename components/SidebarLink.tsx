@@ -68,9 +68,8 @@ export const SidebarRowLink = ({
   return (
     <li
       className={cn(
-        'border-b-2 border-muted last:border-b-0 flex items-stretch hover:bg-secondary hover:text-secondary-foreground transition-colors relative',
+        'border-b-1 border-muted last:border-b-0 flex items-stretch hover:bg-secondary hover:text-secondary-foreground transition-colors relative',
         isSelected && 'bg-primary text-primary-foreground',
-        isCompleted && 'opacity-70',
       )}
     >
       {/* Clickable area linking to the lesson page */}
@@ -79,7 +78,7 @@ export const SidebarRowLink = ({
           <SidebarCheckbox isSelected={isSelected} isCompleted={isCompleted} />
         </div>
         <div className="flex min-w-0 flex-1 items-center px-4 py-4">
-          <span className="line-clamp-2">{title}</span>
+          <span className="line-clamp-2 opacity-70">{title}</span>
         </div>
       </Link>
 

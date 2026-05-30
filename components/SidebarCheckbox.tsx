@@ -14,8 +14,9 @@ export default function SidebarCheckbox({
       disabled
       checked={isCompleted}
       className={cn(
-        'hover:translate-x-0 hover:translate-y-0 shadow-none disabled:opacity-100 pointer-events-none outline-1 outline-muted',
+        'hover:translate-x-0 hover:translate-y-0 shadow-none pointer-events-none outline-1 outline-muted',
         isSelected ? 'border-foreground bg-background' : '',
+        isCompleted ? 'opacity-70 group-hover:opacity-100' : '',
       )}
     />
   )
