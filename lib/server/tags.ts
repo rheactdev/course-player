@@ -1,3 +1,5 @@
+import { getDb } from './db'
+
 export function normalizeTag(value: string) {
   return value.trim().replace(/\s+/g, ' ')
 }
@@ -28,3 +30,43 @@ export function parseTagsJson(tagsJson: string | null | undefined) {
     return []
   }
 }
+
+export function getGlobalTags() {
+  const rows = getDb().prepare('SELECT name FROM tags ORDER BY name COLLATE NOCASE ASC').all() as { name: string }[]
+  return rows.map((r) => r.name)
+}
+
+export function addGlobalTag(name: string) {
+  const normalized = normalizeTag(name)
+  if (!normalized) return null
+  
+  const db = getDb()
+  db.prepare('INSERT OR IGNORE INTO tags (name) VALUES (?)').run(normalized)
+  return normalized
+}
+
+export function removeGlobalTag(name: string) {
+  const normalized = normalizeTag(name)
+  if (!normalized) return
+
+  const db = getDb()
+  // Transaction: remove from global tags, and also remove from all courses.
+  const tx = db.transaction(() => {
+    db.prepare('DELETE FROM tags WHERE name = ? COLLATE NOCASE').run(normalized)
+
+    // Remove from courses
+    const courses = db.prepare('SELECT id, tags_json FROM courses').all() as { id: number, tags_json: string }[]
+    const updateStmt = db.prepare('UPDATE courses SET tags_json = ? WHERE id = ?')
+    
+    for (const course of courses) {
+      const currentTags = parseTagsJson(course.tags_json)
+      const newTags = currentTags.filter((t) => t.toLowerCase() !== normalized.toLowerCase())
+      if (newTags.length !== currentTags.length) {
+        updateStmt.run(JSON.stringify(newTags), course.id)
+      }
+    }
+  })
+  
+  tx()
+}
+

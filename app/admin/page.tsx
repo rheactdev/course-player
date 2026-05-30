@@ -1,10 +1,12 @@
 import { Tags } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { CourseTagSelector } from '@/components/CourseTagSelector'
+import { GlobalTagManager } from '@/components/GlobalTagManager'
 import { getDb } from '@/lib/server/db'
 import { serializeCourse } from '@/lib/server/serialize'
-import { parseTagsJson, uniqueTags } from '@/lib/server/tags'
+import { parseTagsJson, uniqueTags, getGlobalTags } from '@/lib/server/tags'
 import type { CourseRecord } from '@/lib/server/types'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -27,9 +29,27 @@ function getAllCourseTags(courses: CourseRecord[]) {
 
 export default function TagsPage() {
   const rows = getCourses()
-  const availableTags = getAllCourseTags(rows)
+  const globalTags = getGlobalTags()
+  const courseTags = getAllCourseTags(rows)
+  const availableTags = uniqueTags([...globalTags, ...courseTags])
   const courses = rows.map(serializeCourse)
-
+  return (
+    <main className="relative isolate flex-1 overflow-hidden bg-background min-h-screen">
+      <div className="grid-pattern pointer-events-none absolute inset-0 z-0 opacity-20"></div>
+      <div className="flex w-full justify-center pt-10">
+        <Tabs defaultValue="tags" className="w-9/10">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="tags">Tags</TabsTrigger>
+            <TabsTrigger value="courses">Courses</TabsTrigger>
+          </TabsList>
+          <TabsContent value="tags">
+            <GlobalTagManager initialTags={availableTags} />
+          </TabsContent>
+          <TabsContent value="courses">Courses</TabsContent>
+        </Tabs>
+      </div>
+    </main>
+  )
   return (
     <main className="relative isolate flex-1 overflow-hidden bg-background">
       <div className="grid-pattern pointer-events-none absolute inset-0 z-0 opacity-20"></div>
@@ -41,6 +61,8 @@ export default function TagsPage() {
             </h1>
           </div>
         </div>
+
+        <GlobalTagManager initialTags={availableTags} />
 
         {courses.length ? (
           <div className="grid gap-5 lg:grid-cols-2">

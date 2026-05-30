@@ -58,9 +58,11 @@ export function SiteHeader() {
         </nav>
 
         <div className="flex items-center gap-1.5">
-          <Button size="sm">
-            <Link href="/tags">Tags</Link>
-          </Button>
+          <Link href="/admin" className="cursor-pointer">
+            <Button size="sm" className="cursor-pointer">
+              Admin
+            </Button>
+          </Link>
           <Button
             aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
             variant="outline"

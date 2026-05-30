@@ -85,6 +85,12 @@ CREATE TABLE IF NOT EXISTS progress (
   updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE IF NOT EXISTS tags (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT NOT NULL UNIQUE COLLATE NOCASE,
+  created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
 CREATE INDEX IF NOT EXISTS idx_sections_course_id ON sections(course_id);
 CREATE INDEX IF NOT EXISTS idx_lessons_course_id ON lessons(course_id);
 CREATE INDEX IF NOT EXISTS idx_lessons_section_id ON lessons(section_id);
