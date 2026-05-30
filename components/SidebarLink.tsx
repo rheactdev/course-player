@@ -4,7 +4,8 @@ import { sidebarItemVariants, useSidebar } from '@/components/ui/sidebar'
 import SidebarCheckbox from './SidebarCheckbox'
 import { AttachmentRecord } from '@/lib/server/types'
 import { Button } from './ui/button'
-import { PaperclipIcon } from 'lucide-react'
+import { PaperclipIcon, FileDown } from 'lucide-react'
+import AttachmentPopover from './AttachmentPopover'
 
 type SidebarLinkProps = React.ComponentProps<typeof Link> & {
   icon?: React.ReactNode
@@ -64,26 +65,31 @@ export const SidebarRowLink = ({
   isCompleted,
   attachments,
 }: LessonRowProps) => {
-  // const { state } = useSidebar()
-  // if (state === 'collapsed') return
-  // console.log(attachments?.length)
+  const hasAttachments = attachments && attachments.length > 0
+
   return (
-    <li className="border-b-2 border-muted last:border-b-0 flex hover:bg-muted/50">
-      <Link href={href} className="">
+    <li
+      className={cn(
+        'border-b-2 border-muted last:border-b-0 flex items-stretch hover:bg-muted/50 transition-colors relative',
+        isSelected && 'bg-muted',
+      )}
+    >
+      {/* Clickable area linking to the lesson page */}
+      <Link href={href} className="flex flex-1 items-stretch min-w-0">
         <div className="flex px-4 shrink-0 items-center justify-center border-r border-muted py-4">
           <SidebarCheckbox isSelected={isSelected} isCompleted={isCompleted} />
         </div>
         <div className="flex min-w-0 flex-1 items-center px-4 py-4">
           <span className="line-clamp-2">{title}</span>
         </div>
-        {attachments?.length ? (
-          <div className="flex px-4 shrink-0 items-center justify-center border-l border-muted py-4">
-            <Button size="sm">
-              <PaperclipIcon />
-            </Button>
-          </div>
-        ) : null}
       </Link>
+
+      {/* Attachment area rendered outside the row Link */}
+      {hasAttachments ? (
+        <div className="flex px-4 shrink-0 items-center justify-center border-l border-muted py-4 relative z-20">
+          <AttachmentPopover />
+        </div>
+      ) : null}
     </li>
   )
 }
