@@ -1,5 +1,6 @@
 import { getDb } from '@/lib/server/db'
 import { serializeAttachment, serializeCourse } from '@/lib/server/serialize'
+import { uniqueTags } from '@/lib/server/tags'
 import type { AttachmentRecord, CourseRecord, LessonRecord, SectionRecord } from '@/lib/server/types'
 
 export const runtime = 'nodejs'
@@ -67,4 +68,40 @@ export async function GET(_request: Request, { params }: { params: Promise<{ slu
       })),
     },
   })
+}
+
+export async function PATCH(request: Request, { params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params
+  const body = await request.json().catch(() => null)
+
+  if (!body || typeof body !== 'object' || !Array.isArray((body as { tags?: unknown }).tags)) {
+    return Response.json({ error: 'Expected a JSON body with a tags array' }, { status: 400 })
+  }
+
+  const tags = uniqueTags(
+    (body as { tags: unknown[] }).tags.filter((tag): tag is string => typeof tag === 'string'),
+  )
+
+  if (tags.length > 24) {
+    return Response.json({ error: 'A course can have at most 24 tags' }, { status: 400 })
+  }
+
+  if (tags.some((tag) => tag.length > 40)) {
+    return Response.json({ error: 'Tags must be 40 characters or fewer' }, { status: 400 })
+  }
+
+  const db = getDb()
+  const result = db.prepare(`
+    UPDATE courses
+    SET tags_json = ?, updated_at = CURRENT_TIMESTAMP
+    WHERE slug = ?
+  `).run(JSON.stringify(tags), slug)
+
+  if (!result.changes) {
+    return Response.json({ error: 'Course not found' }, { status: 404 })
+  }
+
+  const course = db.prepare('SELECT * FROM courses WHERE slug = ?').get(slug) as CourseRecord
+
+  return Response.json({ course: serializeCourse(course) })
 }

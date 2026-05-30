@@ -3,6 +3,7 @@ import path from 'node:path'
 import { getServerConfig } from './config'
 import { getDb } from './db'
 import { isIgnoredName, normalizeRelativePath, relativeToCoursesDir } from './paths'
+import { parseTagsJson, uniqueTags } from './tags'
 import type { CourseMetadata, CourseRecord, LessonRecord, ScanSummary, SectionRecord } from './types'
 
 const sectionPattern = /^(\d+)\.\s*(.+)$/
@@ -54,6 +55,14 @@ function tagsField(value: unknown) {
     .filter((tag): tag is string => typeof tag === 'string')
     .map((tag) => tag.trim())
     .filter(Boolean)
+}
+
+function mergedCourseTags(rootPath: string, metadataTags: string[]) {
+  const existing = getDb()
+    .prepare('SELECT tags_json FROM courses WHERE root_path = ?')
+    .get(rootPath) as Pick<CourseRecord, 'tags_json'> | undefined
+
+  return uniqueTags([...parseTagsJson(existing?.tags_json), ...metadataTags])
 }
 
 function slugify(value: string) {
@@ -283,7 +292,7 @@ export function scanCourseLibrary(): ScanSummary {
       const courseName = stringField(metadata.courseName) || stringField(metadata.title) || candidate.folderName
       const creator =
         stringField(metadata.creator) || stringField(metadata.instructor) || candidate.instructorName
-      const tagsJson = JSON.stringify(tagsField(metadata.tags))
+      const tagsJson = JSON.stringify(mergedCourseTags(rootPath, tagsField(metadata.tags)))
       const coverPath = findCoverPath(courseRoot)
       const slug = uniqueSlug(slugify(courseName), rootPath)
 

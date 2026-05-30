@@ -139,6 +139,12 @@ Progress is stored in SQLite. The browser sends the current playback position an
 
 Lessons are marked complete when playback reaches 90% or the video ends.
 
+## Tags
+
+Course tags are editable from the course detail page. Existing tags can be selected, and new tags can be created directly in the UI. Tags are stored in SQLite in `courses.tags_json`, and the scanner preserves existing user-created tags when a course is rescanned.
+
+When deploying with Docker or Coolify, persist `/app/data` as a volume. Progress and course tags are both stored in the SQLite database there, so they survive container recreation.
+
 ## Scripts
 
 ```sh

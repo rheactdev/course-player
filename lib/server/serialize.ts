@@ -1,4 +1,5 @@
 import type { AttachmentRecord, CourseRecord, ProgressRecord } from './types'
+import { parseTagsJson } from './tags'
 
 export type SerializedCourse = {
   id: number
@@ -41,12 +42,7 @@ export type SerializedProgress = {
 }
 
 export function parseTags(tagsJson: string) {
-  try {
-    const tags = JSON.parse(tagsJson)
-    return Array.isArray(tags) ? tags.filter((tag): tag is string => typeof tag === 'string') : []
-  } catch {
-    return []
-  }
+  return parseTagsJson(tagsJson)
 }
 
 export function serializeCourse(course: CourseRecord): SerializedCourse {

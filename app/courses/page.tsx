@@ -1,9 +1,9 @@
-import Image from "next/image";
-import Link from "next/link";
-import { BookOpen, ImageIcon } from "lucide-react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { BookOpen } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { CourseCard } from "@/components/CourseCard";
 import { getDb } from "@/lib/server/db";
 import { serializeCourse } from "@/lib/server/serialize";
+import { parseTagsJson, uniqueTags } from "@/lib/server/tags";
 import type { CourseRecord } from "@/lib/server/types";
 import { ScanButton } from "./scan-button";
 
@@ -32,8 +32,13 @@ function getCourses() {
     .all() as CourseOverviewRow[];
 }
 
+function getAllCourseTags(courses: CourseOverviewRow[]) {
+  return uniqueTags(courses.flatMap((course) => parseTagsJson(course.tags_json)));
+}
+
 export default function CoursesPage() {
   const courses = getCourses();
+  const availableTags = getAllCourseTags(courses);
 
   return (
     <main className="relative isolate flex-1 overflow-hidden bg-background">
@@ -59,77 +64,7 @@ export default function CoursesPage() {
               const course = serializeCourse(row);
 
               return (
-                <Link
-                  aria-label={`Open ${course.courseName}`}
-                  className="block"
-                  href={`/courses/${course.slug}`}
-                  key={course.id}
-                >
-                  <Card className="min-h-[24rem] bg-card" interactive>
-                    {/* <CardHeader>
-                      <CardTitle>{course.creator || "Unknown"}</CardTitle>
-                      <CardDescription>{course.courseName}</CardDescription>
-                    </CardHeader> */}
-                    <CardContent className="p-0">
-                      <div className="relative flex aspect-[4/3] overflow-hidden bg-muted">
-                        {course.coverPath ? (
-                          <Image
-                            alt=""
-                            className="object-cover"
-                            fill
-                            sizes="(min-width: 1280px) 30vw, (min-width: 640px) 45vw, 90vw"
-                            src={`/media/covers/${course.id}`}
-                          />
-                        ) : (
-                          <div className="flex h-full w-full items-center justify-center">
-                            <div className="flex h-16 w-16 items-center justify-center border-3 border-foreground bg-accent text-accent-foreground shadow-[3px_3px_0px_hsl(var(--shadow-color))]">
-                              <ImageIcon className="h-8 w-8" aria-hidden="true" />
-                            </div>
-                          </div>
-                        )}
-                      </div>
-
-                      {/* <div className="space-y-2">
-                        <h3 className="text-xl font-bold uppercase tracking-wide leading-none">
-                          {truncateTitle(course.courseName)}
-                        </h3>
-                        <p className="text-base font-medium text-muted-foreground">
-                          {course.creator || "Unknown creator"}
-                        </p>
-                      </div> */}
-
-                      {/* <dl className="mt-4 grid grid-cols-3 border-3 border-foreground font-mono text-[0.7rem] font-bold uppercase">
-                        <div className="border-r-3 border-foreground bg-primary p-2 text-primary-foreground">
-                          <dt>Sections</dt>
-                          <dd className="text-base">{row.sections_count}</dd>
-                        </div>
-                        <div className="border-r-3 border-foreground bg-secondary p-2 text-secondary-foreground">
-                          <dt>Lessons</dt>
-                          <dd className="text-base">{row.lessons_count}</dd>
-                        </div>
-                        <div className="bg-accent p-2 text-accent-foreground">
-                          <dt>Files</dt>
-                          <dd className="text-base">{row.attachments_count}</dd>
-                        </div>
-                      </dl> */}
-
-                      {/* <div className="mt-auto flex flex-wrap gap-2 pt-6">
-                        {fallbackTags.map((tag, index) => (
-                          <Badge
-                            key={`${course.id}-${tag}`}
-                            variant={index === 0 ? "default" : index === 1 ? "secondary" : "accent"}
-                          >
-                            {tag}
-                          </Badge>
-                        ))}
-                      </div> */}
-                    </CardContent>
-                    <CardHeader className="border-b-0 border-t-3">
-                      <CardTitle>{course.creator || "Unknown"}</CardTitle>
-                      <CardDescription>{course.courseName}</CardDescription>
-                    </CardHeader>
-                  </Card>
-                </Link>
+                <CourseCard availableTags={availableTags} course={course} key={course.id} />
               );
             })}
           </div>
