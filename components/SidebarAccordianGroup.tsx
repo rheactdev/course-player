@@ -12,6 +12,7 @@ import { Table, TableBody, TableCell, TableRow } from './ui/table'
 import Link from 'next/link'
 import SidebarCheckbox from './SidebarCheckbox'
 import { AttachmentRecord } from '@/lib/server/types'
+import { serializeAttachment, SerializedAttachment } from '@/lib/server/serialize'
 
 type Id = string | number
 
@@ -35,6 +36,14 @@ type CourseSidebarAccordionProps = {
   completedLessonIds?: Id[]
   className?: string
   attachments?: AttachmentRecord[]
+}
+
+function filterAttachments(attachment: AttachmentRecord, courseId: number) {
+  if (attachment.course_id != courseId) {
+    return
+  }
+  const serializedAttachment = serializeAttachment(attachment)
+  return serializeAttachment
 }
 
 export function CourseSidebarAccordion({
@@ -70,14 +79,20 @@ export function CourseSidebarAccordion({
             </AccordionTrigger>
 
             <AccordionContent className="first:pt-0 px-0 m-0 last:pb-0">
-              <ul className="overflow-hidden rounded-md border border-muted">
+              <ul className="overflow-hidden rounded-md">
                 {sectionLessons.map((lesson) => {
                   const href = `/courses/${courseSlug}?lesson=${lesson.id}`
                   const isSelected = selectedLessonId === lesson.id
                   const isCompleted = completedLessonIdSet.has(String(lesson.id))
-                  const lessonAttachments = attachments?.filter(
-                    (cur) => cur.lesson_id === lesson.id,
-                  )
+                  const lessonAttachments: SerializedAttachment[] = []
+
+                  if (attachments) {
+                    for (const record of attachments) {
+                      if (record.lesson_id === lesson.id) {
+                        lessonAttachments.push(serializeAttachment(record))
+                      }
+                    }
+                  }
                   return (
                     <SidebarRowLink
                       key={lesson.id}

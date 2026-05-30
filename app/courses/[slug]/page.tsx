@@ -4,7 +4,7 @@ import { notFound } from 'next/navigation'
 import { FileDown, ImageIcon } from 'lucide-react'
 import { getDb } from '@/lib/server/db'
 import { findMatchingVttPath } from '@/lib/server/media'
-import { serializeCourse, serializeProgress } from '@/lib/server/serialize'
+import { serializeCourse, serializeProgress, serializeAttachment } from '@/lib/server/serialize'
 import type {
   AttachmentRecord,
   CourseRecord,

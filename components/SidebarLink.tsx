@@ -1,11 +1,10 @@
+'use client'
 import Link from 'next/link'
 import { cn } from '@/lib/utils'
-import { sidebarItemVariants, useSidebar } from '@/components/ui/sidebar'
+import { sidebarItemVariants } from '@/components/ui/sidebar'
 import SidebarCheckbox from './SidebarCheckbox'
-import { AttachmentRecord } from '@/lib/server/types'
-import { Button } from './ui/button'
-import { PaperclipIcon, FileDown } from 'lucide-react'
 import AttachmentPopover from './AttachmentPopover'
+import { SerializedAttachment } from '@/lib/server/serialize'
 
 type SidebarLinkProps = React.ComponentProps<typeof Link> & {
   icon?: React.ReactNode
@@ -24,7 +23,6 @@ export function SidebarLink({
   children,
   ...props
 }: SidebarLinkProps) {
-  // const { state } = useSidebar()
   const isCollapsed = false
 
   return (
@@ -55,7 +53,7 @@ type LessonRowProps = {
   title: string
   isSelected: boolean
   isCompleted: boolean
-  attachments?: AttachmentRecord[]
+  attachments?: SerializedAttachment[]
 }
 
 export const SidebarRowLink = ({
@@ -70,8 +68,9 @@ export const SidebarRowLink = ({
   return (
     <li
       className={cn(
-        'border-b-2 border-muted last:border-b-0 flex items-stretch hover:bg-muted/50 transition-colors relative',
-        isSelected && 'bg-muted',
+        'border-b-2 border-muted last:border-b-0 flex items-stretch hover:bg-secondary hover:text-secondary-foreground transition-colors relative',
+        isSelected && 'bg-primary text-primary-foreground',
+        isCompleted && 'opacity-70',
       )}
     >
       {/* Clickable area linking to the lesson page */}
